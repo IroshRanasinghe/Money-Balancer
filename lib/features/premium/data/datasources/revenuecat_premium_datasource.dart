@@ -14,6 +14,9 @@ class RevenueCatPremiumDataSource implements PremiumDataSource {
   RevenueCatPremiumDataSource();
 
   @override
+  bool get storeAvailable => true;
+
+  @override
   Future<void> init() async {
     final key = (Platform.isIOS || Platform.isMacOS)
         ? PremiumConfig.appleKey
@@ -28,7 +31,25 @@ class RevenueCatPremiumDataSource implements PremiumDataSource {
   @override
   Future<List<PremiumPackage>> getPackages() => _guard(() async {
         final packages = await _currentPackages();
-        return [for (final p in packages) _toPackage(p)];
+        // StoreKit reports the intro price even for users who already used it.
+        Set<String>? eligible;
+        if (Platform.isIOS || Platform.isMacOS) {
+          eligible = {};
+          try {
+            final result = await Purchases
+                .checkTrialOrIntroductoryPriceEligibility(
+                    [for (final p in packages) p.storeProduct.identifier]);
+            result.forEach((id, e) {
+              if (e.status ==
+                  IntroEligibilityStatus.introEligibilityStatusEligible) {
+                eligible!.add(id);
+              }
+            });
+          } catch (_) {
+            // Unknown eligibility: show no intro offer rather than a wrong one.
+          }
+        }
+        return [for (final p in packages) _toPackage(p, eligible)];
       });
 
   @override
@@ -84,7 +105,7 @@ class RevenueCatPremiumDataSource implements PremiumDataSource {
     );
   }
 
-  PremiumPackage _toPackage(Package p) => PremiumPackage(
+  PremiumPackage _toPackage(Package p, Set<String>? eligible) => PremiumPackage(
         id: p.identifier,
         title: p.storeProduct.title,
         priceString: p.storeProduct.priceString,
@@ -93,7 +114,10 @@ class RevenueCatPremiumDataSource implements PremiumDataSource {
           PackageType.annual => 'yearly',
           _ => 'other',
         },
-        introOffer: _introOffer(p.storeProduct.introductoryPrice),
+        introOffer: eligible != null &&
+                !eligible.contains(p.storeProduct.identifier)
+            ? null
+            : _introOffer(p.storeProduct.introductoryPrice),
       );
 
   String? _introOffer(IntroductoryPrice? intro) {

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-import 'domain/entities/premium_feature.dart';
+import '../../core/premium/premium_feature.dart';
 import 'presentation/pages/premium_page.dart';
 
 /// PremiumBloc is app-wide (provided in app.dart). The reason that opened the

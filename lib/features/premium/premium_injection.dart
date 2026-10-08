@@ -11,6 +11,7 @@ import 'data/repositories/premium_repository_impl.dart';
 import 'domain/repositories/premium_repository.dart';
 import 'domain/usecases/check_premium_access.dart';
 import 'domain/usecases/get_premium_packages.dart';
+import 'domain/usecases/is_store_available.dart';
 import 'domain/usecases/get_premium_status.dart';
 import 'domain/usecases/purchase_premium.dart';
 import 'domain/usecases/restore_purchases.dart';
@@ -34,7 +35,7 @@ Future<void> registerPremium(GetIt sl) async {
       ? RevenueCatPremiumDataSource()
       : UnavailablePremiumDataSource();
   try {
-    await source.init();
+    await source.init().timeout(const Duration(seconds: 5));
   } catch (_) {
     source = UnavailablePremiumDataSource();
   }
@@ -49,7 +50,8 @@ Future<void> registerPremium(GetIt sl) async {
   sl.registerFactory(() => RestorePurchases(sl()));
   sl.registerFactory(() => WatchPremiumStatus(sl()));
   sl.registerFactory(() => SetDebugPremium(sl()));
+  sl.registerFactory(() => IsStoreAvailable(sl()));
   sl.registerFactory(() => CheckPremiumAccess(sl()));
   // BLoCs
-  sl.registerFactory(() => PremiumBloc(sl(), sl(), sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => PremiumBloc(sl(), sl(), sl(), sl(), sl(), sl(), sl()));
 }

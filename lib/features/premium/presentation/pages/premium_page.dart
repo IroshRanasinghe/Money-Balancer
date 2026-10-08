@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/config/theme.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../domain/entities/premium_feature.dart';
+import '../../../../core/premium/premium_feature.dart';
 import '../../domain/entities/premium_package.dart';
 import '../bloc/premium_bloc.dart';
 
@@ -79,6 +79,8 @@ class _PremiumPageState extends State<PremiumPage> {
                   ..._unavailable(context, state)
                 else if (state.status.isPremium)
                   _ActiveCard(expiresAt: state.status.expiresAt)
+                else if (state.loadFailed)
+                  ..._loadError(context)
                 else
                   ..._offer(context, state, ordered, selected, busy),
               ],
@@ -88,6 +90,21 @@ class _PremiumPageState extends State<PremiumPage> {
       ),
     );
   }
+
+  List<Widget> _loadError(BuildContext context) => [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            "Couldn't load Premium options.",
+            textAlign: TextAlign.center,
+          ),
+        ),
+        TextButton(
+          onPressed: () =>
+              context.read<PremiumBloc>().add(const PremiumStarted()),
+          child: const Text('Try again'),
+        ),
+      ];
 
   List<Widget> _unavailable(BuildContext context, PremiumState state) => [
         if (state.status.isPremium)

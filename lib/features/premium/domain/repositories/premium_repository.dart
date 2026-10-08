@@ -17,6 +17,9 @@ abstract class PremiumRepository {
   /// Plain stream; consumers ignore its errors.
   Stream<PremiumStatus> watchStatus();
 
+  /// Whether a real store backs purchases, regardless of reads working.
+  bool get storeAvailable;
+
   /// Debug builds only; a no-op elsewhere.
   void setDebugPremium(bool value);
 }

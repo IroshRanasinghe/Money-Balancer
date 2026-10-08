@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
-import '../../../premium/domain/entities/premium_feature.dart';
+import '../../../../core/premium/premium_feature.dart';
 import '../../../premium/domain/usecases/check_premium_access.dart';
 import '../entities/budget.dart';
 import '../repositories/budget_repository.dart';
@@ -18,6 +18,12 @@ class SaveBudget {
       year: budget.year,
     );
     return existing.fold((failure) async => Left(failure), (budgets) async {
+      final duplicate = budgets.any(
+          (b) => b.id != budget.id && b.category == budget.category);
+      if (duplicate) {
+        return Left(ValidationFailure(
+            'A ${budget.category} budget already exists for this month.'));
+      }
       if (!budgets.any((b) => b.id == budget.id)) {
         final allowed = await _checkPremium(
           PremiumFeature.budgets,

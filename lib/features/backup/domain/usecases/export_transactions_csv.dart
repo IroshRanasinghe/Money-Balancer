@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/error/failures.dart';
-import '../../../premium/domain/entities/premium_feature.dart';
+import '../../../../core/premium/premium_feature.dart';
 import '../../../premium/domain/usecases/check_premium_access.dart';
 import '../../../accounts/domain/repositories/account_repository.dart';
 import '../../../transactions/domain/repositories/transaction_repository.dart';

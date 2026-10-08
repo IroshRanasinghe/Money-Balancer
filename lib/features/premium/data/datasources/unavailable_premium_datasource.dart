@@ -18,6 +18,9 @@ class UnavailablePremiumDataSource implements PremiumDataSource {
       PremiumStatus(isPremium: _debugPremium, storeAvailable: false);
 
   @override
+  bool get storeAvailable => false;
+
+  @override
   Future<void> init() async {}
 
   @override

@@ -15,5 +15,8 @@ abstract class PremiumState with _$PremiumState {
     @Default(PremiumBusy.none) PremiumBusy busy,
     String? message,
     @Default(false) bool packagesLoading,
+
+    /// Status or packages could not be read (the store itself may be fine).
+    @Default(false) bool loadFailed,
   }) = _PremiumState;
 }

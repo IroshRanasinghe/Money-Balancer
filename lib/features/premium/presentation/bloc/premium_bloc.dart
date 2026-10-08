@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/usecases/get_premium_packages.dart';
 import '../../domain/usecases/get_premium_status.dart';
+import '../../domain/usecases/is_store_available.dart';
 import '../../domain/usecases/purchase_premium.dart';
 import '../../domain/usecases/restore_purchases.dart';
 import '../../domain/usecases/set_debug_premium.dart';
@@ -24,6 +25,7 @@ class PremiumBloc extends Bloc<PremiumEvent, PremiumState> {
     this._restore,
     this._watch,
     this._setDebugPremium,
+    this._isStoreAvailable,
   ) : super(const PremiumState()) {
     on<PremiumStarted>(_onStarted);
     on<PremiumStatusPushed>(
@@ -39,6 +41,9 @@ class PremiumBloc extends Bloc<PremiumEvent, PremiumState> {
   final RestorePurchases _restore;
   final WatchPremiumStatus _watch;
   final SetDebugPremium _setDebugPremium;
+  final IsStoreAvailable _isStoreAvailable;
+
+  bool _starting = false;
 
   StreamSubscription<dynamic>? _subscription;
 
@@ -46,20 +51,40 @@ class PremiumBloc extends Bloc<PremiumEvent, PremiumState> {
     PremiumStarted event,
     Emitter<PremiumState> emit,
   ) async {
-    emit(state.copyWith(packagesLoading: true));
-    // Errors on the stream are ignored by design.
-    await _subscription?.cancel();
-    _subscription = _watch().listen(
-      (status) => add(PremiumStatusPushed(status)),
-      onError: (Object _) {},
-    );
-    final status = await _getStatus();
-    status.fold((_) {}, (s) => emit(state.copyWith(status: s)));
-    final packages = await _getPackages();
-    packages.fold(
-      (_) => emit(state.copyWith(packagesLoading: false)),
-      (list) => emit(state.copyWith(packages: list, packagesLoading: false)),
-    );
+    if (_starting) return;
+    _starting = true;
+    try {
+      emit(state.copyWith(packagesLoading: true, loadFailed: false));
+      // Errors on the stream are ignored by design.
+      await _subscription?.cancel();
+      _subscription = _watch().listen(
+        (status) => add(PremiumStatusPushed(status)),
+        onError: (Object _) {},
+      );
+      var failed = false;
+      final status = await _getStatus();
+      status.fold(
+        (_) {
+          failed = true;
+          // The store is still the store when a read fails.
+          emit(state.copyWith(
+            status: state.status.copyWith(storeAvailable: _isStoreAvailable()),
+          ));
+        },
+        (s) => emit(state.copyWith(status: s)),
+      );
+      final packages = await _getPackages();
+      packages.fold(
+        (_) => emit(state.copyWith(packagesLoading: false, loadFailed: true)),
+        (list) => emit(state.copyWith(
+          packages: list,
+          packagesLoading: false,
+          loadFailed: failed,
+        )),
+      );
+    } finally {
+      _starting = false;
+    }
   }
 
   Future<void> _onPurchase(

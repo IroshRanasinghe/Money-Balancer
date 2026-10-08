@@ -32,6 +32,9 @@ class PremiumRepositoryImpl implements PremiumRepository {
   Stream<PremiumStatus> watchStatus() => _source.watchStatus();
 
   @override
+  bool get storeAvailable => _source.storeAvailable;
+
+  @override
   void setDebugPremium(bool value) => _source.setDebugPremium(value);
 
   Future<Either<Failure, T>> _run<T>(Future<T> Function() body) async {

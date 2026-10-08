@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../features/premium/domain/entities/premium_feature.dart';
+import '../premium/premium_feature.dart';
 
 abstract class Failure extends Equatable {
   const Failure(this.message);

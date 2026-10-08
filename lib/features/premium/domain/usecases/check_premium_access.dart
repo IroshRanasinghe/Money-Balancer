@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/config/constants.dart';
 import '../../../../core/error/failures.dart';
-import '../entities/premium_feature.dart';
+import '../../../../core/premium/premium_feature.dart';
 import '../repositories/premium_repository.dart';
 
 /// Decides whether the user may use [PremiumFeature] given how many items they

@@ -16,6 +16,9 @@ abstract class PremiumDataSource {
 
   Stream<PremiumStatus> watchStatus();
 
+  /// Whether a real store backs this datasource, regardless of reads working.
+  bool get storeAvailable;
+
   /// Debug builds only; ignored everywhere else.
   void setDebugPremium(bool value);
 }

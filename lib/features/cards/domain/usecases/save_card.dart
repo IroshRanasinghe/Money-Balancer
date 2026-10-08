@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
-import '../../../premium/domain/entities/premium_feature.dart';
+import '../../../../core/premium/premium_feature.dart';
 import '../../../premium/domain/usecases/check_premium_access.dart';
 import '../entities/bank_card.dart';
 import '../repositories/card_repository.dart';

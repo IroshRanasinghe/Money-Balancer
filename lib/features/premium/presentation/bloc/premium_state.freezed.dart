@@ -14,7 +14,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PremiumState {
 
- PremiumStatus get status; List<PremiumPackage> get packages; PremiumBusy get busy; String? get message; bool get packagesLoading;
+ PremiumStatus get status; List<PremiumPackage> get packages; PremiumBusy get busy; String? get message; bool get packagesLoading;/// Status or packages could not be read (the store itself may be fine).
+ bool get loadFailed;
 /// Create a copy of PremiumState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +26,16 @@ $PremiumStateCopyWith<PremiumState> get copyWith => _$PremiumStateCopyWithImpl<P
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PremiumState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.packages, packages)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.message, message) || other.message == message)&&(identical(other.packagesLoading, packagesLoading) || other.packagesLoading == packagesLoading));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PremiumState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.packages, packages)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.message, message) || other.message == message)&&(identical(other.packagesLoading, packagesLoading) || other.packagesLoading == packagesLoading)&&(identical(other.loadFailed, loadFailed) || other.loadFailed == loadFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(packages),busy,message,packagesLoading);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(packages),busy,message,packagesLoading,loadFailed);
 
 @override
 String toString() {
-  return 'PremiumState(status: $status, packages: $packages, busy: $busy, message: $message, packagesLoading: $packagesLoading)';
+  return 'PremiumState(status: $status, packages: $packages, busy: $busy, message: $message, packagesLoading: $packagesLoading, loadFailed: $loadFailed)';
 }
 
 
@@ -45,7 +46,7 @@ abstract mixin class $PremiumStateCopyWith<$Res>  {
   factory $PremiumStateCopyWith(PremiumState value, $Res Function(PremiumState) _then) = _$PremiumStateCopyWithImpl;
 @useResult
 $Res call({
- PremiumStatus status, List<PremiumPackage> packages, PremiumBusy busy, String? message, bool packagesLoading
+ PremiumStatus status, List<PremiumPackage> packages, PremiumBusy busy, String? message, bool packagesLoading, bool loadFailed
 });
 
 
@@ -62,13 +63,14 @@ class _$PremiumStateCopyWithImpl<$Res>
 
 /// Create a copy of PremiumState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? packages = null,Object? busy = null,Object? message = freezed,Object? packagesLoading = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? packages = null,Object? busy = null,Object? message = freezed,Object? packagesLoading = null,Object? loadFailed = null,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as PremiumStatus,packages: null == packages ? _self.packages : packages // ignore: cast_nullable_to_non_nullable
 as List<PremiumPackage>,busy: null == busy ? _self.busy : busy // ignore: cast_nullable_to_non_nullable
 as PremiumBusy,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String?,packagesLoading: null == packagesLoading ? _self.packagesLoading : packagesLoading // ignore: cast_nullable_to_non_nullable
+as bool,loadFailed: null == loadFailed ? _self.loadFailed : loadFailed // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -163,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PremiumStatus status,  List<PremiumPackage> packages,  PremiumBusy busy,  String? message,  bool packagesLoading)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PremiumStatus status,  List<PremiumPackage> packages,  PremiumBusy busy,  String? message,  bool packagesLoading,  bool loadFailed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PremiumState() when $default != null:
-return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packagesLoading);case _:
+return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packagesLoading,_that.loadFailed);case _:
   return orElse();
 
 }
@@ -184,10 +186,10 @@ return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PremiumStatus status,  List<PremiumPackage> packages,  PremiumBusy busy,  String? message,  bool packagesLoading)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PremiumStatus status,  List<PremiumPackage> packages,  PremiumBusy busy,  String? message,  bool packagesLoading,  bool loadFailed)  $default,) {final _that = this;
 switch (_that) {
 case _PremiumState():
-return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packagesLoading);case _:
+return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packagesLoading,_that.loadFailed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +206,10 @@ return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PremiumStatus status,  List<PremiumPackage> packages,  PremiumBusy busy,  String? message,  bool packagesLoading)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PremiumStatus status,  List<PremiumPackage> packages,  PremiumBusy busy,  String? message,  bool packagesLoading,  bool loadFailed)?  $default,) {final _that = this;
 switch (_that) {
 case _PremiumState() when $default != null:
-return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packagesLoading);case _:
+return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packagesLoading,_that.loadFailed);case _:
   return null;
 
 }
@@ -219,7 +221,7 @@ return $default(_that.status,_that.packages,_that.busy,_that.message,_that.packa
 
 
 class _PremiumState implements PremiumState {
-  const _PremiumState({this.status = const PremiumStatus(), final  List<PremiumPackage> packages = const <PremiumPackage>[], this.busy = PremiumBusy.none, this.message, this.packagesLoading = false}): _packages = packages;
+  const _PremiumState({this.status = const PremiumStatus(), final  List<PremiumPackage> packages = const <PremiumPackage>[], this.busy = PremiumBusy.none, this.message, this.packagesLoading = false, this.loadFailed = false}): _packages = packages;
   
 
 @override@JsonKey() final  PremiumStatus status;
@@ -233,6 +235,8 @@ class _PremiumState implements PremiumState {
 @override@JsonKey() final  PremiumBusy busy;
 @override final  String? message;
 @override@JsonKey() final  bool packagesLoading;
+/// Status or packages could not be read (the store itself may be fine).
+@override@JsonKey() final  bool loadFailed;
 
 /// Create a copy of PremiumState
 /// with the given fields replaced by the non-null parameter values.
@@ -244,16 +248,16 @@ _$PremiumStateCopyWith<_PremiumState> get copyWith => __$PremiumStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PremiumState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._packages, _packages)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.message, message) || other.message == message)&&(identical(other.packagesLoading, packagesLoading) || other.packagesLoading == packagesLoading));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PremiumState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._packages, _packages)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.message, message) || other.message == message)&&(identical(other.packagesLoading, packagesLoading) || other.packagesLoading == packagesLoading)&&(identical(other.loadFailed, loadFailed) || other.loadFailed == loadFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_packages),busy,message,packagesLoading);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_packages),busy,message,packagesLoading,loadFailed);
 
 @override
 String toString() {
-  return 'PremiumState(status: $status, packages: $packages, busy: $busy, message: $message, packagesLoading: $packagesLoading)';
+  return 'PremiumState(status: $status, packages: $packages, busy: $busy, message: $message, packagesLoading: $packagesLoading, loadFailed: $loadFailed)';
 }
 
 
@@ -264,7 +268,7 @@ abstract mixin class _$PremiumStateCopyWith<$Res> implements $PremiumStateCopyWi
   factory _$PremiumStateCopyWith(_PremiumState value, $Res Function(_PremiumState) _then) = __$PremiumStateCopyWithImpl;
 @override @useResult
 $Res call({
- PremiumStatus status, List<PremiumPackage> packages, PremiumBusy busy, String? message, bool packagesLoading
+ PremiumStatus status, List<PremiumPackage> packages, PremiumBusy busy, String? message, bool packagesLoading, bool loadFailed
 });
 
 
@@ -281,13 +285,14 @@ class __$PremiumStateCopyWithImpl<$Res>
 
 /// Create a copy of PremiumState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? packages = null,Object? busy = null,Object? message = freezed,Object? packagesLoading = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? packages = null,Object? busy = null,Object? message = freezed,Object? packagesLoading = null,Object? loadFailed = null,}) {
   return _then(_PremiumState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as PremiumStatus,packages: null == packages ? _self._packages : packages // ignore: cast_nullable_to_non_nullable
 as List<PremiumPackage>,busy: null == busy ? _self.busy : busy // ignore: cast_nullable_to_non_nullable
 as PremiumBusy,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String?,packagesLoading: null == packagesLoading ? _self.packagesLoading : packagesLoading // ignore: cast_nullable_to_non_nullable
+as bool,loadFailed: null == loadFailed ? _self.loadFailed : loadFailed // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
