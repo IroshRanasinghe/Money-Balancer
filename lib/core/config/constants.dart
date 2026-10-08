@@ -1,0 +1,65 @@
+class AppRoutes {
+  const AppRoutes._();
+
+  static const dashboard = '/';
+  static const transactions = '/transactions';
+  static const budget = '/budget';
+  static const reports = '/reports';
+  static const settings = '/settings';
+  static const addExpense = '/expense/add';
+  static const editExpense = '/expense/edit';
+  static const addIncome = '/income/add';
+  static const editIncome = '/income/edit';
+}
+
+class HiveBoxes {
+  const HiveBoxes._();
+
+  static const transactions = 'transactions';
+  static const budgets = 'budgets';
+  static const settings = 'app_settings';
+}
+
+class HiveTypeIds {
+  const HiveTypeIds._();
+
+  static const transaction = 0;
+  static const budget = 1;
+  static const settings = 2;
+}
+
+class AppCategories {
+  const AppCategories._();
+
+  static const expense = [
+    'Food',
+    'Transport',
+    'Shopping',
+    'Bills',
+    'Entertainment',
+    'Health',
+    'Education',
+    'Other',
+  ];
+
+  static const income = [
+    'Salary',
+    'Freelance',
+    'Business',
+    'Investment',
+    'Gift',
+    'Other',
+  ];
+}
+
+class PaymentMethods {
+  const PaymentMethods._();
+
+  static const all = ['Cash', 'Card', 'Bank Transfer', 'Mobile Wallet'];
+}
+
+class SupportedCurrencies {
+  const SupportedCurrencies._();
+
+  static const codes = ['USD', 'EUR', 'GBP', 'INR', 'LKR'];
+}

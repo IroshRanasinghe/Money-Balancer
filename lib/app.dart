@@ -1,0 +1,27 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'core/config/router.dart';
+import 'core/config/theme.dart';
+import 'core/di/injection_container.dart';
+import 'features/settings/presentation/bloc/settings_bloc.dart';
+
+class MoneyBalanceApp extends StatelessWidget {
+  const MoneyBalanceApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => BlocProvider<SettingsBloc>(
+        create: (_) => sl<SettingsBloc>()..add(const SettingsLoadRequested()),
+        child: BlocBuilder<SettingsBloc, SettingsState>(
+          buildWhen: (a, b) => a.settings.darkMode != b.settings.darkMode,
+          builder: (context, state) => MaterialApp.router(
+            title: 'Money Balance',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: state.settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+            routerConfig: appRouter,
+          ),
+        ),
+      );
+}
