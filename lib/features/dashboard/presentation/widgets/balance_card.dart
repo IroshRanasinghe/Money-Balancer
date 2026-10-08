@@ -17,17 +17,6 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: _card(),
-      ),
-    );
-  }
-
-  Widget _card() {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -96,6 +85,15 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          Positioned.fill(
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24),
+                onTap: onTap,
+              ),
             ),
           ),
         ],

@@ -35,7 +35,7 @@ double? parseSignedAmount(String input) {
   if (trimmed.isEmpty) return 0;
   final negative = trimmed.startsWith('-');
   final body = negative ? trimmed.substring(1) : trimmed;
-  if (body.isEmpty) return null;
+  if (body.isEmpty || !RegExp(r'^[0-9.,]').hasMatch(body)) return null;
   final value = parseAmount(body) ?? (_isZeroAmount(body) ? 0.0 : null);
   if (value == null) return null;
   return negative && value != 0 ? -value : value;

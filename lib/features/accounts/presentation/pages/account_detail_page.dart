@@ -154,9 +154,14 @@ class AccountDetailPage extends StatelessWidget {
     return ListTile(
       key: ValueKey('tr-${transfer.id}'),
       onTap: () {
-        final accounts = [
-          for (final i in context.read<AccountsBloc>().state.items) i.account,
-        ];
+        final accountsState = context.read<AccountsBloc>().state;
+        final accounts = [for (final i in accountsState.items) i.account];
+        if (accounts.length < 2) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(accountsState.errorMessage ??
+                  'Accounts are still loading')));
+          return;
+        }
         TransferFormSheet.show(context, accounts: accounts, existing: transfer);
       },
       leading: CircleAvatar(
