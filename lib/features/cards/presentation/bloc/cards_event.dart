@@ -21,7 +21,7 @@ class CardSaveRequested extends CardsEvent {
     required this.bankName,
     required this.type,
     required this.network,
-    required this.last4,
+    required this.cardNumber,
     required this.expiryMonth,
     required this.expiryYear,
     required this.colorValue,
@@ -35,7 +35,9 @@ class CardSaveRequested extends CardsEvent {
   final String bankName;
   final CardType type;
   final CardNetwork network;
-  final String last4;
+
+  /// Digits only. May be empty only when editing (keeps the stored number).
+  final String cardNumber;
   final int expiryMonth;
   final int expiryYear;
   final int colorValue;
@@ -48,7 +50,7 @@ class CardSaveRequested extends CardsEvent {
         bankName,
         type,
         network,
-        last4,
+        cardNumber,
         expiryMonth,
         expiryYear,
         colorValue,
@@ -60,4 +62,15 @@ class CardDeleteRequested extends CardsEvent {
   final String id;
   @override
   List<Object?> get props => [id];
+}
+
+class CardNumberRevealRequested extends CardsEvent {
+  const CardNumberRevealRequested(this.id);
+  final String id;
+  @override
+  List<Object?> get props => [id];
+}
+
+class CardNumberRevealDismissed extends CardsEvent {
+  const CardNumberRevealDismissed();
 }

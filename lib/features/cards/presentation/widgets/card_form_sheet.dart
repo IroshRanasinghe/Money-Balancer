@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/config/theme.dart';
+import '../../domain/card_number.dart';
 import '../../domain/entities/bank_card.dart';
 import '../bloc/cards_bloc.dart';
 import 'bank_card_tile.dart';
@@ -42,7 +43,7 @@ class _CardFormSheetState extends State<CardFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nickname;
   late final TextEditingController _bankName;
-  late final TextEditingController _last4;
+  late final TextEditingController _cardNumber;
   late CardType _type;
   late CardNetwork _network;
   late int _month;
@@ -57,7 +58,7 @@ class _CardFormSheetState extends State<CardFormSheet> {
     final now = DateTime.now();
     _nickname = TextEditingController(text: c?.nickname ?? '');
     _bankName = TextEditingController(text: c?.bankName ?? '');
-    _last4 = TextEditingController(text: c?.last4 ?? '');
+    _cardNumber = TextEditingController();
     _type = c?.type ?? CardType.debit;
     _network = c?.network ?? CardNetwork.visa;
     _month = c?.expiryMonth ?? now.month;
@@ -69,7 +70,7 @@ class _CardFormSheetState extends State<CardFormSheet> {
   void dispose() {
     _nickname.dispose();
     _bankName.dispose();
-    _last4.dispose();
+    _cardNumber.dispose();
     super.dispose();
   }
 
@@ -94,7 +95,7 @@ class _CardFormSheetState extends State<CardFormSheet> {
           bankName: _bankName.text,
           type: _type,
           network: _network,
-          last4: _last4.text,
+          cardNumber: digitsOnly(_cardNumber.text),
           expiryMonth: _month,
           expiryYear: _year,
           colorValue: _color,
@@ -190,18 +191,29 @@ class _CardFormSheetState extends State<CardFormSheet> {
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _last4,
+                controller: _cardNumber,
                 keyboardType: TextInputType.number,
-                maxLength: 4,
-                obscureText: false,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Last 4 digits',
-                  counterText: '',
+                autofillHints: const [AutofillHints.creditCardNumber],
+                inputFormatters: [_CardNumberFormatter()],
+                decoration: InputDecoration(
+                  labelText: 'Card number',
+                  hintText: editing
+                      ? 'Leave blank to keep •••• ${widget.existing!.last4}'
+                      : null,
                 ),
-                validator: (v) => RegExp(r'^\d{4}$').hasMatch(v ?? '')
-                    ? null
-                    : 'Enter the last 4 digits',
+                onChanged: (v) {
+                  final digits = digitsOnly(v);
+                  if (digits.isEmpty) return;
+                  final detected = detectNetwork(digits);
+                  if (detected != _network) setState(() => _network = detected);
+                },
+                validator: (v) {
+                  final digits = digitsOnly(v ?? '');
+                  if (editing && digits.isEmpty) return null;
+                  return isValidCardNumber(digits)
+                      ? null
+                      : 'Enter a valid card number';
+                },
               ),
               const SizedBox(height: 12),
               Row(
@@ -278,6 +290,21 @@ class _CardFormSheetState extends State<CardFormSheet> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Keeps digits only (max 19) and groups them as the user types.
+class _CardNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var digits = digitsOnly(newValue.text);
+    if (digits.length > 19) digits = digits.substring(0, 19);
+    final text = formatCardNumber(digits);
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
     );
   }
 }

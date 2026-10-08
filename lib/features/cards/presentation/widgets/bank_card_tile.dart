@@ -22,11 +22,13 @@ class BankCardTile extends StatelessWidget {
     required this.item,
     required this.currencyCode,
     this.onTap,
+    this.onReveal,
   });
 
   final CardSpending item;
   final String currencyCode;
   final VoidCallback? onTap;
+  final VoidCallback? onReveal;
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +98,24 @@ class BankCardTile extends StatelessWidget {
                   Text(card.bankName,
                       maxLines: 1, overflow: TextOverflow.ellipsis, style: small),
                 const SizedBox(height: 12),
-                Text(
-                  '•••• ${card.last4}',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(color: white, letterSpacing: 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '•••• ${card.last4}',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(color: white, letterSpacing: 2),
+                      ),
+                    ),
+                    if (onReveal != null)
+                      IconButton(
+                        tooltip: 'Show card number',
+                        visualDensity: VisualDensity.compact,
+                        color: white,
+                        icon: const Icon(Icons.visibility_outlined),
+                        onPressed: onReveal,
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text('Expires $mm/$yy', style: small),

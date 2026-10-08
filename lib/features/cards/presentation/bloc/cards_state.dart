@@ -12,5 +12,9 @@ abstract class CardsState with _$CardsState {
     @Default(CardsStatus.initial) CardsStatus status,
     @Default(<CardSpending>[]) List<CardSpending> items,
     String? errorMessage,
+
+    /// Set only while the reveal dialog is open; cleared on dismiss.
+    String? revealedCardId,
+    String? revealedNumber,
   }) = _CardsState;
 }

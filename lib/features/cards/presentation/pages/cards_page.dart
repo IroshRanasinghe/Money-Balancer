@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
+import '../../domain/card_number.dart';
 import '../bloc/cards_bloc.dart';
 import '../widgets/bank_card_tile.dart';
 import '../widgets/card_form_sheet.dart';
@@ -16,7 +18,14 @@ class CardsPage extends StatelessWidget {
         context.select((SettingsBloc b) => b.state.settings.currency);
     final bloc = context.read<CardsBloc>();
 
-    return BlocListener<CardsBloc, CardsState>(
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CardsBloc, CardsState>(
+          listenWhen: (a, b) =>
+              a.revealedNumber == null && b.revealedNumber != null,
+          listener: (context, state) => _showReveal(context, state),
+        ),
+        BlocListener<CardsBloc, CardsState>(
       listenWhen: (a, b) =>
           a.errorMessage != b.errorMessage &&
           b.errorMessage != null &&
@@ -25,6 +34,8 @@ class CardsPage extends StatelessWidget {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
       },
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(title: const Text('My cards')),
         floatingActionButton: FloatingActionButton.extended(
@@ -65,6 +76,8 @@ class CardsPage extends StatelessWidget {
                   currencyCode: currency,
                   onTap: () =>
                       CardFormSheet.show(context, existing: item.card),
+                  onReveal: () =>
+                      bloc.add(CardNumberRevealRequested(item.card.id)),
                 );
               },
             );
@@ -72,5 +85,42 @@ class CardsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _showReveal(BuildContext context, CardsState state) async {
+    final bloc = context.read<CardsBloc>();
+    final messenger = ScaffoldMessenger.of(context);
+    final number = state.revealedNumber!;
+    final nickname = state.items
+            .where((i) => i.card.id == state.revealedCardId)
+            .map((i) => i.card.nickname)
+            .firstOrNull ??
+        'Card number';
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(nickname),
+        content: SelectableText(
+          formatCardNumber(number),
+          style: const TextStyle(
+              fontFamily: 'monospace', fontSize: 18, letterSpacing: 1),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: number));
+              messenger.showSnackBar(
+                  const SnackBar(content: Text('Card number copied')));
+            },
+            child: const Text('Copy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+    bloc.add(const CardNumberRevealDismissed());
   }
 }

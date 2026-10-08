@@ -6,7 +6,7 @@ enum CardType { debit, credit }
 
 enum CardNetwork { visa, mastercard, amex, other }
 
-/// A saved card summary. Never holds a full card number or CVV.
+/// A saved card summary. Never holds the full card number (kept in secure storage) or a CVV.
 @freezed
 abstract class BankCard with _$BankCard {
   const BankCard._();

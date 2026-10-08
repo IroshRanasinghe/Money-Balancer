@@ -9,6 +9,6 @@ class SaveCard {
 
   final CardRepository _repository;
 
-  Future<Either<Failure, void>> call(BankCard card) =>
-      _repository.saveCard(card);
+  Future<Either<Failure, void>> call(BankCard card, {String? cardNumber}) =>
+      _repository.saveCard(card, cardNumber: cardNumber);
 }
