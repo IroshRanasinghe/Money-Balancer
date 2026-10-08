@@ -89,8 +89,10 @@ class _Content extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: () async {
         bloc.add(const DashboardLoadRequested());
-        await bloc.stream
-            .firstWhere((s) => s.status != DashboardStatus.loading);
+        await bloc.stream.firstWhere(
+          (s) => s.status != DashboardStatus.loading,
+          orElse: () => bloc.state,
+        );
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),

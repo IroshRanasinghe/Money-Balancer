@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/utils/formatters.dart';
 import '../../core/config/constants.dart';
+import '../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../features/transactions/domain/entities/transaction.dart';
 import 'category_icon.dart';
 
@@ -112,6 +115,9 @@ class _TransactionFormState extends State<TransactionForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final currency =
+        context.select((SettingsBloc b) => b.state.settings.currency);
+    final symbol = NumberFormat.simpleCurrency(name: currency).currencySymbol;
     return Form(
       key: _formKey,
       child: Column(
@@ -124,12 +130,12 @@ class _TransactionFormState extends State<TransactionForm> {
             style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Amount',
-              prefixIcon: Icon(Icons.attach_money),
+              prefixText: '$symbol ',
             ),
             validator: (v) => parseAmount(v ?? '') == null
-                ? 'Enter an amount greater than 0'
+                ? 'Enter a valid amount greater than 0 (e.g. 1234.50)'
                 : null,
           ),
           const SizedBox(height: 24),

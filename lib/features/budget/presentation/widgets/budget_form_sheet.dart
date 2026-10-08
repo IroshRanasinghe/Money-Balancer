@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/config/constants.dart';
 import '../../../../core/config/theme.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../domain/entities/budget_progress.dart';
 import '../bloc/budget_bloc.dart';
 
@@ -89,6 +91,9 @@ class _BudgetFormSheetState extends State<BudgetFormSheet> {
   @override
   Widget build(BuildContext context) {
     final editing = widget.existing != null;
+    final currency =
+        context.select((SettingsBloc b) => b.state.settings.currency);
+    final symbol = NumberFormat.simpleCurrency(name: currency).currencySymbol;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -120,11 +125,14 @@ class _BudgetFormSheetState extends State<BudgetFormSheet> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _limit,
-                decoration: const InputDecoration(labelText: 'Monthly limit'),
+                decoration: InputDecoration(
+                  labelText: 'Monthly limit',
+                  prefixText: '$symbol ',
+                ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) => parseAmount(v ?? '') == null
-                    ? 'Enter a limit greater than 0'
+                    ? 'Enter a valid limit greater than 0 (e.g. 1234.50)'
                     : null,
               ),
               SwitchListTile(

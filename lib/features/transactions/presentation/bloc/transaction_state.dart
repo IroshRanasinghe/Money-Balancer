@@ -28,9 +28,15 @@ abstract class TransactionState with _$TransactionState {
     final list = filtered.toList();
     switch (sort) {
       case TransactionSort.newest:
-        list.sort((a, b) => b.date.compareTo(a.date));
+        list.sort((a, b) {
+          final c = b.date.compareTo(a.date);
+          return c != 0 ? c : b.createdAt.compareTo(a.createdAt);
+        });
       case TransactionSort.oldest:
-        list.sort((a, b) => a.date.compareTo(b.date));
+        list.sort((a, b) {
+          final c = a.date.compareTo(b.date);
+          return c != 0 ? c : a.createdAt.compareTo(b.createdAt);
+        });
       case TransactionSort.highest:
         list.sort((a, b) => b.amount.compareTo(a.amount));
       case TransactionSort.lowest:

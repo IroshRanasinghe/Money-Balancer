@@ -139,6 +139,14 @@ class _Body extends StatelessWidget {
         }
         final visible = state.visible;
         if (visible.isEmpty) {
+          final filtered =
+              state.typeFilter != null || state.categoryFilter != null;
+          if (filtered && state.all.isNotEmpty) {
+            return const EmptyState(
+              icon: Icons.filter_alt_off,
+              message: 'No matching transactions',
+            );
+          }
           return const EmptyState(
             icon: Icons.receipt_long,
             message: 'No transactions yet',
@@ -148,7 +156,9 @@ class _Body extends StatelessWidget {
           onRefresh: () async {
             bloc.add(const TransactionsLoadRequested());
             await bloc.stream.firstWhere(
-                (s) => s.status != TransactionListStatus.loading);
+              (s) => s.status != TransactionListStatus.loading,
+              orElse: () => bloc.state,
+            );
           },
           child: ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),

@@ -40,8 +40,9 @@ class BudgetProgressCard extends StatelessWidget {
     return Opacity(
       opacity: budget.isActive ? 1 : 0.5,
       child: Card(
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(16),

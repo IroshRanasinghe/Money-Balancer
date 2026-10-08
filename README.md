@@ -6,7 +6,7 @@ A modern Flutter personal finance management application with Clean Architecture
 
 - **Dashboard** — Overview of current month totals and recent transactions
 - **Add Expense** — Quickly log expenses with category, amount, and payment method
-- **Add Income** — Track income sources with notes and payment details
+- **Add Income** — Track income sources with category, date and optional notes
 - **Transactions** — View, edit, and delete all transaction history with filtering
 - **Budgets** — Set and monitor category budgets with progress tracking
 - **Reports** — Visualize spending trends with interactive charts and analytics
@@ -79,7 +79,7 @@ lib/
     widgets/           # Reusable UI components
 ```
 
-Each feature follows the three-layer Clean Architecture pattern: presentation (UI/BLoC), domain (business logic), and data (repositories/data sources).
+Features follow the Clean Architecture layering: presentation (UI/BLoC), domain (business logic), and data (repositories/data sources). Only budget, settings and transactions have their own data layer; dashboard, expense, income and reports reuse the transactions repository.
 
 ## Technology Stack
 

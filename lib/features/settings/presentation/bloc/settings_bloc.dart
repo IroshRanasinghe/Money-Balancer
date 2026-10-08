@@ -10,8 +10,11 @@ export 'settings_event.dart';
 export 'settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  SettingsBloc(this._getSettings, this._saveSettings)
-      : super(const SettingsState()) {
+  SettingsBloc(
+    this._getSettings,
+    this._saveSettings, {
+    AppSettings initialSettings = const AppSettings(),
+  }) : super(SettingsState(settings: initialSettings)) {
     on<SettingsLoadRequested>(_onLoad);
     on<CurrencyChanged>(
         (e, emit) => _save(state.settings.copyWith(currency: e.currency), emit));

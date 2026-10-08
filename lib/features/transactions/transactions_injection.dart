@@ -6,7 +6,6 @@ import 'data/datasources/transaction_local_datasource.dart';
 import 'data/models/transaction_model.dart';
 import 'data/repositories/transaction_repository_impl.dart';
 import 'domain/repositories/transaction_repository.dart';
-import 'domain/usecases/add_transaction.dart';
 import 'domain/usecases/delete_transaction.dart';
 import 'domain/usecases/get_transactions.dart';
 import 'domain/usecases/update_transaction.dart';
@@ -22,7 +21,6 @@ void registerTransactions(GetIt sl) {
       () => TransactionRepositoryImpl(sl()));
   // Use cases
   sl.registerFactory(() => GetTransactions(sl()));
-  sl.registerFactory(() => AddTransaction(sl()));
   sl.registerFactory(() => UpdateTransaction(sl()));
   sl.registerFactory(() => DeleteTransaction(sl()));
   // BLoCs

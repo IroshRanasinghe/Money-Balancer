@@ -61,8 +61,11 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                     title: entries[i].value / total >= 0.05
                         ? '${(entries[i].value / total * 100).round()}%'
                         : '',
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
+                    titleStyle: TextStyle(
+                      color: _palette[i % _palette.length].computeLuminance() >
+                              0.4
+                          ? Colors.black87
+                          : Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),

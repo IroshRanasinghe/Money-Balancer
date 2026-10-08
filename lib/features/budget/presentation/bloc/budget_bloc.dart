@@ -64,7 +64,7 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
     emit(state.copyWith(errorMessage: null));
     final limit = parseAmount(event.limitText);
     if (limit == null) {
-      emit(state.copyWith(errorMessage: 'Enter a limit greater than 0'));
+      emit(state.copyWith(errorMessage: 'Enter a valid limit greater than 0 (e.g. 1234.50)'));
       return;
     }
     final result = await _saveBudget(Budget(

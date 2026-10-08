@@ -41,7 +41,7 @@ class IncomeBloc extends Bloc<IncomeEvent, IncomeState> {
         state.copyWith(
           status: FormSubmissionStatus.failure,
           errorMessage: const ValidationFailure(
-            'Enter an amount greater than 0',
+            'Enter a valid amount greater than 0 (e.g. 1234.50)',
           ).message,
         ),
       );

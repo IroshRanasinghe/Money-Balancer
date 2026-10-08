@@ -84,22 +84,26 @@ class _Body extends StatelessWidget {
         final active = state.items.where((i) => i.budget.isActive);
         final totalLimit = active.fold<double>(0, (s, i) => s + i.budget.limit);
         final totalSpent = active.fold<double>(0, (s, i) => s + i.spent);
-        return ListView(
+        return ListView.separated(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-          children: [
-            _SummaryCard(
-              spent: totalSpent,
-              limit: totalLimit,
-              currency: currency,
-            ),
-            for (final item in state.items)
-              BudgetProgressCard(
-                key: ValueKey(item.budget.id),
-                item: item,
-                currencyCode: currency,
-                onTap: () => BudgetFormSheet.show(context, existing: item),
-              ),
-          ],
+          itemCount: state.items.length + 1,
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          itemBuilder: (context, i) {
+            if (i == 0) {
+              return _SummaryCard(
+                spent: totalSpent,
+                limit: totalLimit,
+                currency: currency,
+              );
+            }
+            final item = state.items[i - 1];
+            return BudgetProgressCard(
+              key: ValueKey(item.budget.id),
+              item: item,
+              currencyCode: currency,
+              onTap: () => BudgetFormSheet.show(context, existing: item),
+            );
+          },
         );
       },
     );
