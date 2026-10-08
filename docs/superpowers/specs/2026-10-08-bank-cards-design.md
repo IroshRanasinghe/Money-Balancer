@@ -50,3 +50,65 @@ Constants: `HiveBoxes.cards = 'cards'`, `HiveTypeIds.card = 3`, `AppRoutes.cards
 
 ## Out of scope
 Credit limits, full number storage, card payments, per-card reports beyond this month's total.
+
+---
+
+# Addendum (2026-10-08): full card number, stored encrypted
+
+The user asked to enter the full card number instead of the last 4 digits, and chose "store it encrypted" over "keep last 4 only" and "plain Hive". This supersedes the "last 4 digits only" hard rule above. The CVV is still never asked for or stored.
+
+## Storage
+- Add the dependency `flutter_secure_storage` (latest version compatible with this SDK; run `flutter pub add flutter_secure_storage`). Apply any platform setup its README requires for the installed version, e.g. Android minSdk and the macOS keychain entitlement in both `macos/Runner/DebugProfile.entitlements` and `Release.entitlements`.
+- New `lib/features/cards/data/datasources/card_number_secure_datasource.dart`:
+  - `abstract class CardNumberSecureDataSource { Future<String?> read(String cardId); Future<void> write(String cardId, String number); Future<void> delete(String cardId); }`
+  - Implementation: `SecureStorageCardNumberDataSource(FlutterSecureStorage)`, key `card_number_<cardId>`. Wrap every error in `CacheException`.
+  - Add a doc comment noting that on web the storage is browser-backed and weaker.
+- The full number is NEVER put in `BankCard`, `CardModel`, Hive, any freezed state that outlives the reveal, or any log or print.
+
+## Repository and use cases
+- `CardRepository.saveCard(BankCard card, {String? cardNumber})`: writes the Hive model, then, when `cardNumber != null`, writes it to secure storage.
+- `deleteCard(id)` also deletes the secure entry. A missing secure entry is not an error.
+- New `Future<Either<Failure, String?>> getCardNumber(String id)`, which returns null when no number is stored.
+- New use case `GetCardNumber(String id)`. `SaveCard` gains the optional `cardNumber` parameter.
+- DI: register `FlutterSecureStorage` as `registerLazySingleton(() => const FlutterSecureStorage())`, the datasource as a lazy singleton, and `GetCardNumber` as a factory. `CardRepositoryImpl` takes both datasources.
+
+## Validation: lib/features/cards/domain/card_number.dart
+Pure functions, no Flutter imports:
+- `String digitsOnly(String input)`
+- `bool isValidCardNumber(String digits)`: 12 to 19 digits AND passes the Luhn checksum.
+- `CardNetwork detectNetwork(String digits)`:
+  - `4…` → visa
+  - `51`–`55` or `2221`–`2720` → mastercard
+  - `34` or `37` → amex
+  - anything else → other
+- `String formatCardNumber(String digits)`: groups of 4, except Amex, which is 4-6-5.
+
+## Bloc
+- `CardSaveRequested`: replace `last4` with `String cardNumber`, which may be empty only when editing.
+- Validation:
+  - Adding: the number must be valid, otherwise `Enter a valid card number`.
+  - Editing: an empty number keeps the existing number and last4. A non-empty number must be valid.
+  - `last4` is derived from the last 4 digits.
+  - The network is the detected one, unless the user changed the dropdown afterwards; the form sends the network explicitly.
+- New event `CardNumberRevealRequested(String id)`:
+  - Calls `GetCardNumber` and emits `revealedCardId` and `revealedNumber`. These are new nullable state fields.
+  - When nothing is stored, emits the error message `Full number not saved for this card`.
+- New event `CardNumberRevealDismissed()`: clears both fields.
+
+## Form (CardFormSheet)
+- Replace the last-4 field with a "Card number" field:
+  - number keyboard
+  - a digits-and-spaces formatter that groups digits while typing, max 19 digits
+  - validator `isValidCardNumber`, skipped when editing with an empty field
+  - `autofillHints: [AutofillHints.creditCardNumber]`
+  - when editing, hint `Leave blank to keep •••• <last4>`
+- On change, auto-select the detected network in the network dropdown. The user can still override it.
+
+## Cards page and tile
+- `BankCardTile` gets an eye `IconButton` (`onReveal`) that dispatches `CardNumberRevealRequested`.
+- The page's `BlocListener` shows an `AlertDialog`. Its title is `nickname`. Its body is `SelectableText(formatCardNumber(number))` in a monospace style.
+- The dialog has a "Copy" button (`Clipboard.setData`, then the SnackBar "Card number copied") and a "Close" button.
+- On close, the page dispatches `CardNumberRevealDismissed`.
+
+## Unchanged
+Expenses still link by `cardId` and snapshot `cardLast4`. The tile and expense list still show only `•••• last4`.
