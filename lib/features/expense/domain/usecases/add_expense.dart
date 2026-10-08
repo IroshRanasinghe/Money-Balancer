@@ -17,6 +17,8 @@ class AddExpense {
     required DateTime date,
     String? paymentMethod,
     String? notes,
+    String? cardId,
+    String? cardLast4,
   }) => _repository.addTransaction(
     Transaction(
       id: _uuid.v4(),
@@ -26,6 +28,8 @@ class AddExpense {
       type: TransactionType.expense,
       paymentMethod: paymentMethod,
       notes: notes,
+      cardId: cardId,
+      cardLast4: cardLast4,
       createdAt: DateTime.now(),
     ),
   );

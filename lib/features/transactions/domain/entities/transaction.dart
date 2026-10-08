@@ -14,6 +14,8 @@ abstract class Transaction with _$Transaction {
     required TransactionType type,
     String? paymentMethod,
     String? notes,
+    String? cardId,
+    String? cardLast4,
     required DateTime createdAt,
   }) = _Transaction;
 }

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/utils/formatters.dart';
 import '../../core/config/constants.dart';
+import '../../features/cards/domain/entities/bank_card.dart';
 import '../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../features/transactions/domain/entities/transaction.dart';
 import 'category_icon.dart';
@@ -15,6 +16,8 @@ class TransactionFormData {
     required this.date,
     this.paymentMethod,
     this.notes,
+    this.cardId,
+    this.cardLast4,
   });
 
   final String amountText;
@@ -22,6 +25,8 @@ class TransactionFormData {
   final DateTime date;
   final String? paymentMethod;
   final String? notes;
+  final String? cardId;
+  final String? cardLast4;
 }
 
 class TransactionForm extends StatefulWidget {
@@ -33,6 +38,8 @@ class TransactionForm extends StatefulWidget {
     required this.isSubmitting,
     required this.submitLabel,
     required this.onSubmit,
+    this.cards = const [],
+    this.onAddCard,
   });
 
   final List<String> categories;
@@ -41,6 +48,8 @@ class TransactionForm extends StatefulWidget {
   final bool isSubmitting;
   final String submitLabel;
   final ValueChanged<TransactionFormData> onSubmit;
+  final List<BankCard> cards;
+  final VoidCallback? onAddCard;
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
@@ -53,6 +62,8 @@ class _TransactionFormState extends State<TransactionForm> {
   late DateTime _date;
   String? _category;
   late String _paymentMethod;
+  String? _cardId;
+  String? _cardLast4;
   bool _categoryError = false;
 
   @override
@@ -66,6 +77,8 @@ class _TransactionFormState extends State<TransactionForm> {
     _date = initial?.date ?? DateTime.now();
     _category = initial?.category;
     _paymentMethod = initial?.paymentMethod ?? PaymentMethods.all.first;
+    _cardId = initial?.cardId;
+    _cardLast4 = initial?.cardLast4;
   }
 
   @override
@@ -101,6 +114,7 @@ class _TransactionFormState extends State<TransactionForm> {
     setState(() => _categoryError = _category == null);
     if (!valid || _category == null) return;
     final notes = _notesController.text.trim();
+    final isCard = widget.showPaymentMethod && _paymentMethod == 'Card';
     widget.onSubmit(
       TransactionFormData(
         amountText: _amountController.text,
@@ -108,7 +122,54 @@ class _TransactionFormState extends State<TransactionForm> {
         date: _date,
         paymentMethod: widget.showPaymentMethod ? _paymentMethod : null,
         notes: notes.isEmpty ? null : notes,
+        cardId: isCard ? _cardId : null,
+        cardLast4: isCard ? _cardLast4 : null,
       ),
+    );
+  }
+
+  Widget _buildCardPicker() {
+    if (widget.cards.isEmpty && _cardId == null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: widget.onAddCard,
+          icon: const Icon(Icons.add_card),
+          label: const Text('Add a card'),
+        ),
+      );
+    }
+    final knownIds = {for (final c in widget.cards) c.id};
+    final removed = _cardId != null && !knownIds.contains(_cardId);
+    return DropdownButtonFormField<String?>(
+      initialValue: _cardId,
+      decoration: const InputDecoration(labelText: 'Which card?'),
+      items: [
+        const DropdownMenuItem<String?>(
+          value: null,
+          child: Text('No specific card'),
+        ),
+        for (final c in widget.cards)
+          DropdownMenuItem<String?>(
+            value: c.id,
+            child: Text('${c.nickname} •••• ${c.last4}'),
+          ),
+        if (removed)
+          DropdownMenuItem<String?>(
+            value: _cardId,
+            child: Text('•••• ${widget.initial?.cardLast4 ?? _cardLast4} (removed)'),
+          ),
+      ],
+      onChanged: (id) => setState(() {
+        _cardId = id;
+        if (id == null) {
+          _cardLast4 = null;
+        } else {
+          final match = widget.cards.where((c) => c.id == id);
+          _cardLast4 =
+              match.isNotEmpty ? match.first.last4 : widget.initial?.cardLast4;
+        }
+      }),
     );
   }
 
@@ -188,6 +249,10 @@ class _TransactionFormState extends State<TransactionForm> {
                 if (v != null) setState(() => _paymentMethod = v);
               },
             ),
+            if (_paymentMethod == 'Card') ...[
+              const SizedBox(height: 12),
+              _buildCardPicker(),
+            ],
           ],
           const SizedBox(height: 16),
           TextFormField(

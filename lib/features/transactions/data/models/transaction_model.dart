@@ -14,6 +14,8 @@ class TransactionModel {
     required this.type,
     this.paymentMethod,
     this.notes,
+    this.cardId,
+    this.cardLast4,
     required this.createdAt,
   });
 
@@ -28,6 +30,8 @@ class TransactionModel {
         type: t.type,
         paymentMethod: t.paymentMethod,
         notes: t.notes,
+        cardId: t.cardId,
+        cardLast4: t.cardLast4,
         createdAt: t.createdAt,
       );
 
@@ -38,6 +42,8 @@ class TransactionModel {
   final TransactionType type;
   final String? paymentMethod;
   final String? notes;
+  final String? cardId;
+  final String? cardLast4;
   final DateTime createdAt;
 
   Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
@@ -50,6 +56,8 @@ class TransactionModel {
         type: type,
         paymentMethod: paymentMethod,
         notes: notes,
+        cardId: cardId,
+        cardLast4: cardLast4,
         createdAt: createdAt,
       );
 }

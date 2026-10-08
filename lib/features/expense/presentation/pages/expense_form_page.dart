@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/constants.dart';
 import '../../../../shared/form_submission_status.dart';
 import '../../../../shared/widgets/transaction_form.dart';
+import '../../../cards/presentation/bloc/cards_bloc.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../bloc/expense_bloc.dart';
 
@@ -64,14 +65,25 @@ class ExpenseFormPage extends StatelessWidget {
         },
         builder: (context, state) => SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: TransactionForm(
-            categories: AppCategories.expense,
-            showPaymentMethod: true,
-            initial: initial,
-            isSubmitting: state.status == FormSubmissionStatus.submitting,
-            submitLabel: isEditing ? 'Update expense' : 'Save expense',
-            onSubmit: (data) =>
-                context.read<ExpenseBloc>().add(ExpenseSubmitted(data)),
+          child: BlocBuilder<CardsBloc, CardsState>(
+            buildWhen: (a, b) => a.items != b.items,
+            builder: (context, cardsState) => TransactionForm(
+              categories: AppCategories.expense,
+              showPaymentMethod: true,
+              initial: initial,
+              isSubmitting: state.status == FormSubmissionStatus.submitting,
+              submitLabel: isEditing ? 'Update expense' : 'Save expense',
+              cards: [for (final i in cardsState.items) i.card],
+              onAddCard: () async {
+                final cardsBloc = context.read<CardsBloc>();
+                await context.push(AppRoutes.cards);
+                if (context.mounted) {
+                  cardsBloc.add(const CardsLoadRequested());
+                }
+              },
+              onSubmit: (data) =>
+                  context.read<ExpenseBloc>().add(ExpenseSubmitted(data)),
+            ),
           ),
         ),
       ),

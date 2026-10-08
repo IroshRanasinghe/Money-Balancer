@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../../features/budget/budget_injection.dart';
+import '../../features/cards/cards_injection.dart';
 import '../../features/dashboard/dashboard_injection.dart';
 import '../../features/expense/expense_injection.dart';
 import '../../features/income/income_injection.dart';
@@ -17,6 +18,7 @@ Future<void> initDependencies() async {
   // Shared data (other features depend on these repositories)
   registerSettings(sl);
   registerTransactions(sl);
+  registerCards(sl);
 
   // Features
   registerExpense(sl);

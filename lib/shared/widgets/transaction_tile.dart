@@ -22,9 +22,12 @@ class TransactionTile extends StatelessWidget {
     final t = transaction;
     final isExpense = t.type == TransactionType.expense;
     final color = isExpense ? AppColors.danger : AppColors.success;
-    final dateLine = t.paymentMethod == null || t.paymentMethod!.isEmpty
+    final method = t.paymentMethod == 'Card' && t.cardLast4 != null
+        ? 'Card •••• ${t.cardLast4}'
+        : t.paymentMethod;
+    final dateLine = method == null || method.isEmpty
         ? formatDate(t.date)
-        : '${formatDate(t.date)} · ${t.paymentMethod}';
+        : '${formatDate(t.date)} · $method';
     final notes = t.notes;
 
     return ListTile(
