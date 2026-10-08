@@ -29,8 +29,25 @@ class CardRepositoryImpl implements CardRepository {
   Future<Either<Failure, void>> saveCard(BankCard card,
       {String? cardNumber}) async {
     try {
-      await _dataSource.put(CardModel.fromEntity(card));
-      if (cardNumber != null) await _numbers.write(card.id, cardNumber);
+      if (cardNumber == null) {
+        await _dataSource.put(CardModel.fromEntity(card));
+        return const Right(null);
+      }
+      final previous = await _numbers.read(card.id);
+      await _numbers.write(card.id, cardNumber);
+      try {
+        await _dataSource.put(CardModel.fromEntity(card));
+      } catch (_) {
+        // Roll the secure entry back so it matches the unsaved Hive record.
+        try {
+          if (previous != null) {
+            await _numbers.write(card.id, previous);
+          } else {
+            await _numbers.delete(card.id);
+          }
+        } catch (_) {}
+        rethrow;
+      }
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
@@ -40,8 +57,9 @@ class CardRepositoryImpl implements CardRepository {
   @override
   Future<Either<Failure, void>> deleteCard(String id) async {
     try {
-      await _dataSource.delete(id);
+      // Secure entry first: if it fails the card stays listed and retryable.
       await _numbers.delete(id);
+      await _dataSource.delete(id);
       return const Right(null);
     } on NotFoundException catch (e) {
       return Left(NotFoundFailure(e.message));

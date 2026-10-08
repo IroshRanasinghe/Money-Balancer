@@ -22,6 +22,7 @@ class CardSaveRequested extends CardsEvent {
     required this.type,
     required this.network,
     required this.cardNumber,
+    this.existingLast4,
     required this.expiryMonth,
     required this.expiryYear,
     required this.colorValue,
@@ -38,9 +39,17 @@ class CardSaveRequested extends CardsEvent {
 
   /// Digits only. May be empty only when editing (keeps the stored number).
   final String cardNumber;
+
+  /// Existing card's last4 when editing; used when [cardNumber] is empty.
+  final String? existingLast4;
   final int expiryMonth;
   final int expiryYear;
   final int colorValue;
+
+  /// Never prints the full number.
+  @override
+  String toString() =>
+      'CardSaveRequested(id: $id, nickname: $nickname, number: ${cardNumber.isEmpty ? 'none' : '••••'})';
 
   @override
   List<Object?> get props => [
@@ -51,6 +60,7 @@ class CardSaveRequested extends CardsEvent {
         type,
         network,
         cardNumber,
+        existingLast4,
         expiryMonth,
         expiryYear,
         colorValue,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -109,8 +111,15 @@ class CardsPage extends StatelessWidget {
           TextButton(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: number));
-              messenger.showSnackBar(
-                  const SnackBar(content: Text('Card number copied')));
+              Timer(const Duration(seconds: 60), () async {
+                final data = await Clipboard.getData('text/plain');
+                if (data?.text == number) {
+                  await Clipboard.setData(const ClipboardData(text: ''));
+                }
+              });
+              messenger.showSnackBar(const SnackBar(
+                  content: Text(
+                      'Card number copied — clipboard clears in 60 s')));
             },
             child: const Text('Copy'),
           ),

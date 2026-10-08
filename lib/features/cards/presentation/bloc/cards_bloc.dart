@@ -63,16 +63,9 @@ class CardsBloc extends Bloc<CardsEvent, CardsState> {
     final number = digitsOnly(event.cardNumber);
     String last4;
     String? numberToStore;
-    if (number.isEmpty && event.id != null) {
-      final existing = state.items
-          .map((i) => i.card)
-          .where((c) => c.id == event.id)
-          .firstOrNull;
-      if (existing == null) {
-        emit(state.copyWith(errorMessage: 'Card not found'));
-        return;
-      }
-      last4 = existing.last4;
+    final existingLast4 = event.existingLast4;
+    if (number.isEmpty && event.id != null && existingLast4 != null) {
+      last4 = existingLast4;
     } else {
       if (!isValidCardNumber(number)) {
         emit(state.copyWith(errorMessage: 'Enter a valid card number'));
@@ -104,7 +97,10 @@ class CardsBloc extends Bloc<CardsEvent, CardsState> {
       createdAt: event.createdAt ?? now,
     ), cardNumber: numberToStore);
     await result.fold(
-      (failure) async => emit(state.copyWith(errorMessage: failure.message)),
+      (failure) async {
+        emit(state.copyWith(errorMessage: failure.message));
+        await _load(emit);
+      },
       (_) => _load(emit),
     );
   }

@@ -15,6 +15,9 @@ abstract class CardsState with _$CardsState {
 
     /// Set only while the reveal dialog is open; cleared on dismiss.
     String? revealedCardId,
+
+    /// SENSITIVE full card number. Never log this state (a BlocObserver
+    /// would print it).
     String? revealedNumber,
   }) = _CardsState;
 }

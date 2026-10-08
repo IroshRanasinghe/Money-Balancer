@@ -50,6 +50,7 @@ class _CardFormSheetState extends State<CardFormSheet> {
   late int _year;
   late int _color;
   String? _expiryError;
+  bool _networkChosenManually = false;
 
   @override
   void initState() {
@@ -96,6 +97,7 @@ class _CardFormSheetState extends State<CardFormSheet> {
           type: _type,
           network: _network,
           cardNumber: digitsOnly(_cardNumber.text),
+          existingLast4: widget.existing?.last4,
           expiryMonth: _month,
           expiryYear: _year,
           colorValue: _color,
@@ -187,7 +189,10 @@ class _CardFormSheetState extends State<CardFormSheet> {
                   for (final n in CardNetwork.values)
                     DropdownMenuItem(value: n, child: Text(cardNetworkLabel(n))),
                 ],
-                onChanged: (n) => setState(() => _network = n ?? _network),
+                onChanged: (n) => setState(() {
+                  _network = n ?? _network;
+                  _networkChosenManually = true;
+                }),
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -202,10 +207,11 @@ class _CardFormSheetState extends State<CardFormSheet> {
                       : null,
                 ),
                 onChanged: (v) {
-                  final digits = digitsOnly(v);
-                  if (digits.isEmpty) return;
-                  final detected = detectNetwork(digits);
-                  if (detected != _network) setState(() => _network = detected);
+                  if (_networkChosenManually) return;
+                  final detected = detectNetwork(digitsOnly(v));
+                  if (detected != CardNetwork.other && detected != _network) {
+                    setState(() => _network = detected);
+                  }
                 },
                 validator: (v) {
                   final digits = digitsOnly(v ?? '');
@@ -294,17 +300,30 @@ class _CardFormSheetState extends State<CardFormSheet> {
   }
 }
 
-/// Keeps digits only (max 19) and groups them as the user types.
+/// Keeps digits only (max 19), groups them as the user types and keeps the
+/// caret after the same digit. Backspacing over a space removes the digit
+/// before it.
 class _CardNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
-    var digits = digitsOnly(newValue.text);
+    final text = newValue.text;
+    final end = newValue.selection.end.clamp(0, text.length);
+    var digits = digitsOnly(text);
+    var before = digitsOnly(text.substring(0, end)).length;
+    final deletedSeparator = text.length < oldValue.text.length &&
+        digits == digitsOnly(oldValue.text);
+    if (deletedSeparator && before > 0) {
+      digits = digits.replaceRange(before - 1, before, '');
+      before--;
+    }
     if (digits.length > 19) digits = digits.substring(0, 19);
-    final text = formatCardNumber(digits);
+    if (before > digits.length) before = digits.length;
+    final formatted = formatCardNumber(digits);
     return TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(offset: text.length),
+      text: formatted,
+      selection: TextSelection.collapsed(
+          offset: caretOffsetForDigitCount(formatted, before)),
     );
   }
 }

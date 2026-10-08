@@ -18,7 +18,9 @@ import 'presentation/bloc/cards_bloc.dart';
 
 void registerCards(GetIt sl) {
   // Data sources
-  sl.registerLazySingleton(() => const FlutterSecureStorage());
+  // macOS: legacy login keychain; works without a provisioning profile.
+  sl.registerLazySingleton(() => const FlutterSecureStorage(
+      mOptions: MacOsOptions(usesDataProtectionKeychain: false)));
   sl.registerLazySingleton<CardLocalDataSource>(
       () => HiveCardLocalDataSource(Hive.box<CardModel>(HiveBoxes.cards)));
   sl.registerLazySingleton<CardNumberSecureDataSource>(

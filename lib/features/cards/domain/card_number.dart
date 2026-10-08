@@ -50,3 +50,17 @@ String formatCardNumber(String digits) {
   if (i < digits.length) parts.add(digits.substring(i));
   return parts.join(' ');
 }
+
+/// Offset in [formatted] just after its [digitCount]-th digit (0 when 0).
+int caretOffsetForDigitCount(String formatted, int digitCount) {
+  if (digitCount <= 0) return 0;
+  var seen = 0;
+  for (var i = 0; i < formatted.length; i++) {
+    final c = formatted.codeUnitAt(i);
+    if (c >= 0x30 && c <= 0x39) {
+      seen++;
+      if (seen == digitCount) return i + 1;
+    }
+  }
+  return formatted.length;
+}

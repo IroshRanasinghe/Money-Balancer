@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 mixin _$CardsState {
 
  CardsStatus get status; List<CardSpending> get items; String? get errorMessage;/// Set only while the reveal dialog is open; cleared on dismiss.
- String? get revealedCardId; String? get revealedNumber;
+ String? get revealedCardId;/// SENSITIVE full card number. Never log this state (a BlocObserver
+/// would print it).
+ String? get revealedNumber;
 /// Create a copy of CardsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -225,6 +227,8 @@ class _CardsState implements CardsState {
 @override final  String? errorMessage;
 /// Set only while the reveal dialog is open; cleared on dismiss.
 @override final  String? revealedCardId;
+/// SENSITIVE full card number. Never log this state (a BlocObserver
+/// would print it).
 @override final  String? revealedNumber;
 
 /// Create a copy of CardsState
