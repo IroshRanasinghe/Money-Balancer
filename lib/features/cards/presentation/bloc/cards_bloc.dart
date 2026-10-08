@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../domain/card_number.dart';
 import '../../domain/entities/bank_card.dart';
 import '../../domain/usecases/delete_card.dart';
@@ -98,7 +99,12 @@ class CardsBloc extends Bloc<CardsEvent, CardsState> {
     ), cardNumber: numberToStore);
     await result.fold(
       (failure) async {
-        emit(state.copyWith(errorMessage: failure.message));
+        emit(failure is PremiumRequiredFailure
+            ? state.copyWith(
+                paywallCount: state.paywallCount + 1,
+                paywallFeature: failure.feature,
+              )
+            : state.copyWith(errorMessage: failure.message));
         await _load(emit);
       },
       (_) => _load(emit),

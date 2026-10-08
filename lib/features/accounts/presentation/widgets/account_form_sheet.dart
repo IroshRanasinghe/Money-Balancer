@@ -112,7 +112,9 @@ class _AccountFormSheetState extends State<AccountFormSheet> {
     final editing = widget.existing != null;
     final theme = Theme.of(context);
     return BlocListener<AccountsBloc, AccountsState>(
-      listenWhen: (a, b) => a.savedCount != b.savedCount,
+      // A free-plan limit also closes the sheet; the page opens the paywall.
+      listenWhen: (a, b) =>
+          a.savedCount != b.savedCount || a.paywallCount != b.paywallCount,
       listener: (context, state) {
         if (_submitted) Navigator.pop(context);
       },

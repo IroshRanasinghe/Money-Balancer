@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BudgetState {
 
- int get month; int get year; BudgetListStatus get status; List<BudgetProgress> get items; String? get errorMessage;
+ int get month; int get year; BudgetListStatus get status; List<BudgetProgress> get items; String? get errorMessage;/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+ int get paywallCount; PremiumFeature? get paywallFeature;
 /// Create a copy of BudgetState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $BudgetStateCopyWith<BudgetState> get copyWith => _$BudgetStateCopyWithImpl<Budg
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BudgetState&&(identical(other.month, month) || other.month == month)&&(identical(other.year, year) || other.year == year)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BudgetState&&(identical(other.month, month) || other.month == month)&&(identical(other.year, year) || other.year == year)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,month,year,status,const DeepCollectionEquality().hash(items),errorMessage);
+int get hashCode => Object.hash(runtimeType,month,year,status,const DeepCollectionEquality().hash(items),errorMessage,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'BudgetState(month: $month, year: $year, status: $status, items: $items, errorMessage: $errorMessage)';
+  return 'BudgetState(month: $month, year: $year, status: $status, items: $items, errorMessage: $errorMessage, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $BudgetStateCopyWith<$Res>  {
   factory $BudgetStateCopyWith(BudgetState value, $Res Function(BudgetState) _then) = _$BudgetStateCopyWithImpl;
 @useResult
 $Res call({
- int month, int year, BudgetListStatus status, List<BudgetProgress> items, String? errorMessage
+ int month, int year, BudgetListStatus status, List<BudgetProgress> items, String? errorMessage, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -62,14 +64,16 @@ class _$BudgetStateCopyWithImpl<$Res>
 
 /// Create a copy of BudgetState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? month = null,Object? year = null,Object? status = null,Object? items = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? month = null,Object? year = null,Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_self.copyWith(
 month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as BudgetListStatus,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<BudgetProgress>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 
@@ -154,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int month,  int year,  BudgetListStatus status,  List<BudgetProgress> items,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int month,  int year,  BudgetListStatus status,  List<BudgetProgress> items,  String? errorMessage,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BudgetState() when $default != null:
-return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessage);case _:
+return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessage,_that.paywallCount,_that.paywallFeature);case _:
   return orElse();
 
 }
@@ -175,10 +179,10 @@ return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int month,  int year,  BudgetListStatus status,  List<BudgetProgress> items,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int month,  int year,  BudgetListStatus status,  List<BudgetProgress> items,  String? errorMessage,  int paywallCount,  PremiumFeature? paywallFeature)  $default,) {final _that = this;
 switch (_that) {
 case _BudgetState():
-return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessage);case _:
+return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessage,_that.paywallCount,_that.paywallFeature);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +199,10 @@ return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int month,  int year,  BudgetListStatus status,  List<BudgetProgress> items,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int month,  int year,  BudgetListStatus status,  List<BudgetProgress> items,  String? errorMessage,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,) {final _that = this;
 switch (_that) {
 case _BudgetState() when $default != null:
-return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessage);case _:
+return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessage,_that.paywallCount,_that.paywallFeature);case _:
   return null;
 
 }
@@ -210,7 +214,7 @@ return $default(_that.month,_that.year,_that.status,_that.items,_that.errorMessa
 
 
 class _BudgetState implements BudgetState {
-  const _BudgetState({required this.month, required this.year, this.status = BudgetListStatus.initial, final  List<BudgetProgress> items = const <BudgetProgress>[], this.errorMessage}): _items = items;
+  const _BudgetState({required this.month, required this.year, this.status = BudgetListStatus.initial, final  List<BudgetProgress> items = const <BudgetProgress>[], this.errorMessage, this.paywallCount = 0, this.paywallFeature}): _items = items;
   
 
 @override final  int month;
@@ -224,6 +228,10 @@ class _BudgetState implements BudgetState {
 }
 
 @override final  String? errorMessage;
+/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+@override@JsonKey() final  int paywallCount;
+@override final  PremiumFeature? paywallFeature;
 
 /// Create a copy of BudgetState
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +243,16 @@ _$BudgetStateCopyWith<_BudgetState> get copyWith => __$BudgetStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BudgetState&&(identical(other.month, month) || other.month == month)&&(identical(other.year, year) || other.year == year)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BudgetState&&(identical(other.month, month) || other.month == month)&&(identical(other.year, year) || other.year == year)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,month,year,status,const DeepCollectionEquality().hash(_items),errorMessage);
+int get hashCode => Object.hash(runtimeType,month,year,status,const DeepCollectionEquality().hash(_items),errorMessage,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'BudgetState(month: $month, year: $year, status: $status, items: $items, errorMessage: $errorMessage)';
+  return 'BudgetState(month: $month, year: $year, status: $status, items: $items, errorMessage: $errorMessage, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -255,7 +263,7 @@ abstract mixin class _$BudgetStateCopyWith<$Res> implements $BudgetStateCopyWith
   factory _$BudgetStateCopyWith(_BudgetState value, $Res Function(_BudgetState) _then) = __$BudgetStateCopyWithImpl;
 @override @useResult
 $Res call({
- int month, int year, BudgetListStatus status, List<BudgetProgress> items, String? errorMessage
+ int month, int year, BudgetListStatus status, List<BudgetProgress> items, String? errorMessage, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -272,14 +280,16 @@ class __$BudgetStateCopyWithImpl<$Res>
 
 /// Create a copy of BudgetState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? month = null,Object? year = null,Object? status = null,Object? items = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? month = null,Object? year = null,Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_BudgetState(
 month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as BudgetListStatus,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<BudgetProgress>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 

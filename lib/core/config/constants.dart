@@ -10,6 +10,7 @@ class AppRoutes {
   static const accounts = '/accounts';
   static const accountDetail = '/accounts/detail';
   static const recurring = '/recurring';
+  static const premium = '/premium';
   static const addExpense = '/expense/add';
   static const editExpense = '/expense/edit';
   static const addIncome = '/income/add';
@@ -88,4 +89,14 @@ class SupportedCurrencies {
   const SupportedCurrencies._();
 
   static const codes = ['USD', 'EUR', 'GBP', 'INR', 'LKR'];
+}
+
+class PremiumLimits {
+  const PremiumLimits._();
+
+  static const freeAccounts = 2;
+  static const freeCards = 2;
+  static const freeBudgetsPerMonth = 5;
+  static const freeRecurring = 3;
+  static const freeGoals = 1;
 }

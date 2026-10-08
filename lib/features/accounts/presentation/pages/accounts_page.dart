@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/constants.dart';
 import '../../../../core/config/theme.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/accounts_bloc.dart';
@@ -22,16 +23,25 @@ class AccountsPage extends StatelessWidget {
     );
     final bloc = context.read<AccountsBloc>();
 
-    return BlocListener<AccountsBloc, AccountsState>(
-      listenWhen: (a, b) =>
-          a.errorMessage != b.errorMessage &&
-          b.errorMessage != null &&
-          b.status != AccountsStatus.failure,
-      listener: (context, state) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AccountsBloc, AccountsState>(
+          listenWhen: (a, b) =>
+              a.errorMessage != b.errorMessage &&
+              b.errorMessage != null &&
+              b.status != AccountsStatus.failure,
+          listener: (context, state) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          },
+        ),
+        BlocListener<AccountsBloc, AccountsState>(
+          listenWhen: (a, b) => a.paywallCount != b.paywallCount,
+          listener: (context, state) =>
+              openPaywall(context, state.paywallFeature!),
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Accounts'),

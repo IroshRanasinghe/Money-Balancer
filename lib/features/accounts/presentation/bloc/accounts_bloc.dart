@@ -60,13 +60,20 @@ class AccountsBloc extends Bloc<AccountsEvent, AccountsState> {
     );
   }
 
+  AccountsState _failed(Failure failure) => failure is PremiumRequiredFailure
+      ? state.copyWith(
+          paywallCount: state.paywallCount + 1,
+          paywallFeature: failure.feature,
+        )
+      : state.copyWith(errorMessage: failure.message);
+
   /// On success bump [AccountsState.savedCount] and reload; on failure report.
   Future<void> _finish(
     Either<Failure, void> result,
     Emitter<AccountsState> emit,
   ) async {
     await result.fold(
-      (failure) async => emit(state.copyWith(errorMessage: failure.message)),
+      (failure) async => emit(_failed(failure)),
       (_) async {
         emit(state.copyWith(savedCount: state.savedCount + 1));
         await _load(emit);

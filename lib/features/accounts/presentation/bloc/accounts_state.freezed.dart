@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 mixin _$AccountsState {
 
  AccountsStatus get status; List<AccountBalance> get items; String? get errorMessage;/// Incremented on every successful save/delete so sheets can close.
- int get savedCount;
+ int get savedCount;/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+ int get paywallCount; PremiumFeature? get paywallFeature;
 /// Create a copy of AccountsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +28,16 @@ $AccountsStateCopyWith<AccountsState> get copyWith => _$AccountsStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AccountsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AccountsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(items),errorMessage,savedCount);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(items),errorMessage,savedCount,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'AccountsState(status: $status, items: $items, errorMessage: $errorMessage, savedCount: $savedCount)';
+  return 'AccountsState(status: $status, items: $items, errorMessage: $errorMessage, savedCount: $savedCount, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -46,7 +48,7 @@ abstract mixin class $AccountsStateCopyWith<$Res>  {
   factory $AccountsStateCopyWith(AccountsState value, $Res Function(AccountsState) _then) = _$AccountsStateCopyWithImpl;
 @useResult
 $Res call({
- AccountsStatus status, List<AccountBalance> items, String? errorMessage, int savedCount
+ AccountsStatus status, List<AccountBalance> items, String? errorMessage, int savedCount, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -63,13 +65,15 @@ class _$AccountsStateCopyWithImpl<$Res>
 
 /// Create a copy of AccountsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? savedCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? savedCount = null,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as AccountsStatus,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<AccountBalance>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,savedCount: null == savedCount ? _self.savedCount : savedCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 
@@ -154,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AccountsStatus status,  List<AccountBalance> items,  String? errorMessage,  int savedCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AccountsStatus status,  List<AccountBalance> items,  String? errorMessage,  int savedCount,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AccountsState() when $default != null:
-return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount);case _:
+return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount,_that.paywallCount,_that.paywallFeature);case _:
   return orElse();
 
 }
@@ -175,10 +179,10 @@ return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AccountsStatus status,  List<AccountBalance> items,  String? errorMessage,  int savedCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AccountsStatus status,  List<AccountBalance> items,  String? errorMessage,  int savedCount,  int paywallCount,  PremiumFeature? paywallFeature)  $default,) {final _that = this;
 switch (_that) {
 case _AccountsState():
-return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount);case _:
+return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount,_that.paywallCount,_that.paywallFeature);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +199,10 @@ return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AccountsStatus status,  List<AccountBalance> items,  String? errorMessage,  int savedCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AccountsStatus status,  List<AccountBalance> items,  String? errorMessage,  int savedCount,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,) {final _that = this;
 switch (_that) {
 case _AccountsState() when $default != null:
-return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount);case _:
+return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount,_that.paywallCount,_that.paywallFeature);case _:
   return null;
 
 }
@@ -210,7 +214,7 @@ return $default(_that.status,_that.items,_that.errorMessage,_that.savedCount);ca
 
 
 class _AccountsState implements AccountsState {
-  const _AccountsState({this.status = AccountsStatus.initial, final  List<AccountBalance> items = const <AccountBalance>[], this.errorMessage, this.savedCount = 0}): _items = items;
+  const _AccountsState({this.status = AccountsStatus.initial, final  List<AccountBalance> items = const <AccountBalance>[], this.errorMessage, this.savedCount = 0, this.paywallCount = 0, this.paywallFeature}): _items = items;
   
 
 @override@JsonKey() final  AccountsStatus status;
@@ -224,6 +228,10 @@ class _AccountsState implements AccountsState {
 @override final  String? errorMessage;
 /// Incremented on every successful save/delete so sheets can close.
 @override@JsonKey() final  int savedCount;
+/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+@override@JsonKey() final  int paywallCount;
+@override final  PremiumFeature? paywallFeature;
 
 /// Create a copy of AccountsState
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +243,16 @@ _$AccountsStateCopyWith<_AccountsState> get copyWith => __$AccountsStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AccountsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AccountsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_items),errorMessage,savedCount);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_items),errorMessage,savedCount,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'AccountsState(status: $status, items: $items, errorMessage: $errorMessage, savedCount: $savedCount)';
+  return 'AccountsState(status: $status, items: $items, errorMessage: $errorMessage, savedCount: $savedCount, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -255,7 +263,7 @@ abstract mixin class _$AccountsStateCopyWith<$Res> implements $AccountsStateCopy
   factory _$AccountsStateCopyWith(_AccountsState value, $Res Function(_AccountsState) _then) = __$AccountsStateCopyWithImpl;
 @override @useResult
 $Res call({
- AccountsStatus status, List<AccountBalance> items, String? errorMessage, int savedCount
+ AccountsStatus status, List<AccountBalance> items, String? errorMessage, int savedCount, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -272,13 +280,15 @@ class __$AccountsStateCopyWithImpl<$Res>
 
 /// Create a copy of AccountsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? savedCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? savedCount = null,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_AccountsState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as AccountsStatus,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<AccountBalance>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,savedCount: null == savedCount ? _self.savedCount : savedCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 

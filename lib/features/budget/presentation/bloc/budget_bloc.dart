@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/budget.dart';
@@ -76,7 +77,12 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
       isActive: event.isActive,
     ));
     await result.fold(
-      (failure) async => emit(state.copyWith(errorMessage: failure.message)),
+      (failure) async => emit(failure is PremiumRequiredFailure
+          ? state.copyWith(
+              paywallCount: state.paywallCount + 1,
+              paywallFeature: failure.feature,
+            )
+          : state.copyWith(errorMessage: failure.message)),
       (_) => _load(emit),
     );
   }

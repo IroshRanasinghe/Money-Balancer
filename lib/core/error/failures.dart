@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../features/premium/domain/entities/premium_feature.dart';
+
 abstract class Failure extends Equatable {
   const Failure(this.message);
 
@@ -33,4 +35,26 @@ class InvalidBackupFailure extends Failure {
 
 class FileFailure extends Failure {
   const FileFailure([super.message = 'Could not open or save the file.']);
+}
+
+class PremiumRequiredFailure extends Failure {
+  PremiumRequiredFailure(this.feature) : super(feature.paywallReason);
+
+  final PremiumFeature feature;
+
+  @override
+  List<Object?> get props => [message, feature];
+}
+
+class PurchaseCancelledFailure extends Failure {
+  const PurchaseCancelledFailure([super.message = 'Purchase cancelled.']);
+}
+
+class StoreUnavailableFailure extends Failure {
+  const StoreUnavailableFailure(
+      [super.message = "Purchases aren't available on this device."]);
+}
+
+class PurchaseFailure extends Failure {
+  const PurchaseFailure(super.message);
 }

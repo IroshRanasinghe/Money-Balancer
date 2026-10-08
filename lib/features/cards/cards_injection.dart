@@ -31,7 +31,7 @@ void registerCards(GetIt sl) {
   // Use cases
   sl.registerFactory(() => GetCards(sl()));
   sl.registerFactory(() => GetCardSpending(sl(), sl()));
-  sl.registerFactory(() => SaveCard(sl()));
+  sl.registerFactory(() => SaveCard(sl(), sl()));
   sl.registerFactory(() => DeleteCard(sl()));
   sl.registerFactory(() => GetCardNumber(sl()));
   // BLoCs

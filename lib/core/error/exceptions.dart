@@ -22,3 +22,16 @@ class InvalidBackupException extends AppException {
 class FileException extends AppException {
   const FileException([super.message = 'Could not open or save the file.']);
 }
+
+class PurchaseCancelledException extends AppException {
+  const PurchaseCancelledException([super.message = 'Purchase cancelled.']);
+}
+
+class StoreUnavailableException extends AppException {
+  const StoreUnavailableException(
+      [super.message = "Purchases aren't available on this device."]);
+}
+
+class PurchaseException extends AppException {
+  const PurchaseException(super.message);
+}

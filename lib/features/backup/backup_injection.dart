@@ -39,7 +39,7 @@ void registerBackup(GetIt sl) {
   // Use cases
   sl.registerFactory(() => ExportBackup(sl()));
   sl.registerFactory(() => RestoreBackupFromFile(sl()));
-  sl.registerFactory(() => ExportTransactionsCsv(sl(), sl(), sl()));
+  sl.registerFactory(() => ExportTransactionsCsv(sl(), sl(), sl(), sl()));
   // BLoCs
   sl.registerFactory(() => BackupBloc(sl(), sl(), sl()));
 }

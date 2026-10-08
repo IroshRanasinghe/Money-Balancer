@@ -39,6 +39,18 @@ flutter build apk --release       # Android APK
 flutter build ios --release       # iOS app
 ```
 
+## Premium (RevenueCat)
+
+Free plan limits (accounts, cards, budgets, recurring items, CSV export) are lifted by a `premium` entitlement managed in RevenueCat. Configure the products, the `premium` entitlement and the current offering (monthly, yearly with a 7-day trial) in the RevenueCat dashboard. SDK keys are never stored in code; pass them at build time:
+
+```bash
+flutter run \
+  --dart-define=REVENUECAT_APPLE_KEY=appl_xxx \
+  --dart-define=REVENUECAT_GOOGLE_KEY=goog_xxx
+```
+
+Without a key for the platform (and always on web and desktop) the app uses a "store unavailable" mode. In debug builds the paywall then shows a "Debug: premium enabled" switch to test limits. iOS also needs the In-App Purchase capability enabled in Xcode.
+
 ## Project Structure
 
 ```

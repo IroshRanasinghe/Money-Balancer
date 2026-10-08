@@ -3,7 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/constants.dart';
+import '../../../../core/config/theme.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../shared/premium_gate.dart';
 import '../../../backup/presentation/bloc/backup_bloc.dart';
+import '../../../premium/presentation/bloc/premium_bloc.dart';
 import '../bloc/settings_bloc.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -33,6 +37,11 @@ class SettingsPage extends StatelessWidget {
             },
           ),
           BlocListener<BackupBloc, BackupState>(
+            listenWhen: (a, b) => a.paywallCount != b.paywallCount,
+            listener: (context, state) =>
+                openPaywall(context, state.paywallFeature!),
+          ),
+          BlocListener<BackupBloc, BackupState>(
             listenWhen: (a, b) => a.restoredCount != b.restoredCount,
             listener: (context, state) => context
                 .read<SettingsBloc>()
@@ -47,6 +56,8 @@ class SettingsPage extends StatelessWidget {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  const _PremiumCard(),
+                  const SizedBox(height: 12),
                   Card(
                     child: Column(
                       children: [
@@ -108,6 +119,54 @@ class SettingsPage extends StatelessWidget {
       );
 }
 
+class _PremiumCard extends StatelessWidget {
+  const _PremiumCard();
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocBuilder<PremiumBloc, PremiumState>(
+        buildWhen: (a, b) => a.status != b.status,
+        builder: (context, state) {
+          final status = state.status;
+          final expires = status.expiresAt;
+          return Card(
+            child: ListTile(
+              leading:
+                  const Icon(Icons.workspace_premium, color: AppColors.warning),
+              title: Text(status.isPremium ? 'Premium' : 'Go Premium'),
+              subtitle: Text(status.isPremium
+                  ? (expires == null
+                      ? 'Active'
+                      : 'Active until ${formatDate(expires)}')
+                  : 'Unlimited accounts, budgets, goals and more'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(AppRoutes.premium),
+            ),
+          );
+        },
+      );
+}
+
+class _ProChip extends StatelessWidget {
+  const _ProChip();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: AppColors.warning.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          'PRO',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.warning,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+      );
+}
+
 class _DataCard extends StatelessWidget {
   const _DataCard();
 
@@ -160,6 +219,10 @@ class _DataCard extends StatelessWidget {
                       enabled: !working,
                       leading: const Icon(Icons.table_chart_outlined),
                       title: const Text('Export transactions (CSV)'),
+                      trailing: context.select(
+                              (PremiumBloc b) => b.state.status.isPremium)
+                          ? null
+                          : const _ProChip(),
                       onTap: () => bloc.add(const CsvExportRequested()),
                     ),
                     const Divider(height: 1),

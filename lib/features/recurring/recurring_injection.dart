@@ -26,7 +26,7 @@ void registerRecurring(GetIt sl) {
   );
   // Use cases
   sl.registerFactory(() => GetRecurringRules(sl()));
-  sl.registerFactory(() => SaveRecurringRule(sl()));
+  sl.registerFactory(() => SaveRecurringRule(sl(), sl()));
   sl.registerFactory(() => DeleteRecurringRule(sl()));
   sl.registerFactory(() => ProcessDueRecurring(sl(), sl()));
   // BLoCs

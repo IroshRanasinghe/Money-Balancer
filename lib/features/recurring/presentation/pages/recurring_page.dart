@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/recurring_bloc.dart';
@@ -17,17 +18,26 @@ class RecurringPage extends StatelessWidget {
     );
     final bloc = context.read<RecurringBloc>();
 
-    return BlocListener<RecurringBloc, RecurringState>(
-      listenWhen: (a, b) =>
-          (a.errorMessage != b.errorMessage && b.errorMessage != null) ||
-          (a.infoMessage != b.infoMessage && b.infoMessage != null),
-      listener: (context, state) {
-        final message = state.errorMessage ?? state.infoMessage;
-        if (message == null) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<RecurringBloc, RecurringState>(
+          listenWhen: (a, b) =>
+              (a.errorMessage != b.errorMessage && b.errorMessage != null) ||
+              (a.infoMessage != b.infoMessage && b.infoMessage != null),
+          listener: (context, state) {
+            final message = state.errorMessage ?? state.infoMessage;
+            if (message == null) return;
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(message)));
+          },
+        ),
+        BlocListener<RecurringBloc, RecurringState>(
+          listenWhen: (a, b) => a.paywallCount != b.paywallCount,
+          listener: (context, state) =>
+              openPaywall(context, state.paywallFeature!),
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(title: const Text('Recurring')),
         floatingActionButton: FloatingActionButton.extended(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/formatters.dart';
+import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/month_selector.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
@@ -18,15 +19,24 @@ class BudgetPage extends StatelessWidget {
         context.select((SettingsBloc b) => b.state.settings.currency);
     final bloc = context.read<BudgetBloc>();
 
-    return BlocListener<BudgetBloc, BudgetState>(
-      listenWhen: (a, b) =>
-          a.errorMessage != b.errorMessage &&
-          b.errorMessage != null &&
-          b.status != BudgetListStatus.failure,
-      listener: (context, state) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<BudgetBloc, BudgetState>(
+          listenWhen: (a, b) =>
+              a.errorMessage != b.errorMessage &&
+              b.errorMessage != null &&
+              b.status != BudgetListStatus.failure,
+          listener: (context, state) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          },
+        ),
+        BlocListener<BudgetBloc, BudgetState>(
+          listenWhen: (a, b) => a.paywallCount != b.paywallCount,
+          listener: (context, state) =>
+              openPaywall(context, state.paywallFeature!),
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(title: const Text('Budgets')),
         floatingActionButton: FloatingActionButton.extended(

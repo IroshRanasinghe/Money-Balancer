@@ -189,6 +189,13 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
     await _afterWrite(result, emit, processDue: false);
   }
 
+  RecurringState _failed(Failure failure) => failure is PremiumRequiredFailure
+      ? state.copyWith(
+          paywallCount: state.paywallCount + 1,
+          paywallFeature: failure.feature,
+        )
+      : state.copyWith(errorMessage: failure.message);
+
   /// On success bump [RecurringState.savedCount], optionally generate due
   /// items, and reload; on failure report.
   Future<void> _afterWrite(
@@ -198,7 +205,7 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
   }) async {
     final failure = result.fold<Failure?>((f) => f, (_) => null);
     if (failure != null) {
-      emit(state.copyWith(errorMessage: failure.message));
+      emit(_failed(failure));
       return;
     }
     emit(state.copyWith(savedCount: state.savedCount + 1));

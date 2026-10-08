@@ -20,7 +20,7 @@ void registerBudget(GetIt sl) {
   sl.registerLazySingleton<BudgetRepository>(() => BudgetRepositoryImpl(sl()));
   // Use cases
   sl.registerFactory(() => GetBudgetProgress(sl(), sl()));
-  sl.registerFactory(() => SaveBudget(sl()));
+  sl.registerFactory(() => SaveBudget(sl(), sl()));
   sl.registerFactory(() => DeleteBudget(sl()));
   // BLoCs
   sl.registerFactory(() => BudgetBloc(sl(), sl(), sl(), const Uuid()));

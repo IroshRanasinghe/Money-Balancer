@@ -36,7 +36,7 @@ void registerAccounts(GetIt sl) {
   );
   // Use cases
   sl.registerFactory(() => GetAccounts(sl()));
-  sl.registerFactory(() => SaveAccount(sl()));
+  sl.registerFactory(() => SaveAccount(sl(), sl()));
   sl.registerFactory(() => SaveTransfer(sl()));
   sl.registerFactory(() => DeleteTransfer(sl()));
   sl.registerFactory(() => GetAccountBalances(sl(), sl()));

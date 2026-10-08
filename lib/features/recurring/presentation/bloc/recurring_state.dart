@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../premium/domain/entities/premium_feature.dart';
 import '../../domain/entities/recurring_rule.dart';
 
 part 'recurring_state.freezed.dart';
@@ -16,5 +17,10 @@ abstract class RecurringState with _$RecurringState {
 
     /// Incremented on every successful save/delete so sheets can close.
     @Default(0) int savedCount,
+
+    /// Incremented when a save hits a free-plan limit, so the page can open
+    /// the paywall for [paywallFeature].
+    @Default(0) int paywallCount,
+    PremiumFeature? paywallFeature,
   }) = _RecurringState;
 }

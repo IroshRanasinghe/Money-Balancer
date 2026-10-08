@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BackupState {
 
- BackupStatus get status; String? get message; int get restoredCount;
+ BackupStatus get status; String? get message; int get restoredCount;/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+ int get paywallCount; PremiumFeature? get paywallFeature;
 /// Create a copy of BackupState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $BackupStateCopyWith<BackupState> get copyWith => _$BackupStateCopyWithImpl<Back
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BackupState&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.restoredCount, restoredCount) || other.restoredCount == restoredCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BackupState&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.restoredCount, restoredCount) || other.restoredCount == restoredCount)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,message,restoredCount);
+int get hashCode => Object.hash(runtimeType,status,message,restoredCount,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'BackupState(status: $status, message: $message, restoredCount: $restoredCount)';
+  return 'BackupState(status: $status, message: $message, restoredCount: $restoredCount, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $BackupStateCopyWith<$Res>  {
   factory $BackupStateCopyWith(BackupState value, $Res Function(BackupState) _then) = _$BackupStateCopyWithImpl;
 @useResult
 $Res call({
- BackupStatus status, String? message, int restoredCount
+ BackupStatus status, String? message, int restoredCount, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -62,12 +64,14 @@ class _$BackupStateCopyWithImpl<$Res>
 
 /// Create a copy of BackupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? message = freezed,Object? restoredCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? message = freezed,Object? restoredCount = null,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as BackupStatus,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String?,restoredCount: null == restoredCount ? _self.restoredCount : restoredCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 
@@ -152,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( BackupStatus status,  String? message,  int restoredCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( BackupStatus status,  String? message,  int restoredCount,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BackupState() when $default != null:
-return $default(_that.status,_that.message,_that.restoredCount);case _:
+return $default(_that.status,_that.message,_that.restoredCount,_that.paywallCount,_that.paywallFeature);case _:
   return orElse();
 
 }
@@ -173,10 +177,10 @@ return $default(_that.status,_that.message,_that.restoredCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( BackupStatus status,  String? message,  int restoredCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( BackupStatus status,  String? message,  int restoredCount,  int paywallCount,  PremiumFeature? paywallFeature)  $default,) {final _that = this;
 switch (_that) {
 case _BackupState():
-return $default(_that.status,_that.message,_that.restoredCount);case _:
+return $default(_that.status,_that.message,_that.restoredCount,_that.paywallCount,_that.paywallFeature);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +197,10 @@ return $default(_that.status,_that.message,_that.restoredCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( BackupStatus status,  String? message,  int restoredCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( BackupStatus status,  String? message,  int restoredCount,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,) {final _that = this;
 switch (_that) {
 case _BackupState() when $default != null:
-return $default(_that.status,_that.message,_that.restoredCount);case _:
+return $default(_that.status,_that.message,_that.restoredCount,_that.paywallCount,_that.paywallFeature);case _:
   return null;
 
 }
@@ -208,12 +212,16 @@ return $default(_that.status,_that.message,_that.restoredCount);case _:
 
 
 class _BackupState implements BackupState {
-  const _BackupState({this.status = BackupStatus.idle, this.message, this.restoredCount = 0});
+  const _BackupState({this.status = BackupStatus.idle, this.message, this.restoredCount = 0, this.paywallCount = 0, this.paywallFeature});
   
 
 @override@JsonKey() final  BackupStatus status;
 @override final  String? message;
 @override@JsonKey() final  int restoredCount;
+/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+@override@JsonKey() final  int paywallCount;
+@override final  PremiumFeature? paywallFeature;
 
 /// Create a copy of BackupState
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +233,16 @@ _$BackupStateCopyWith<_BackupState> get copyWith => __$BackupStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BackupState&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.restoredCount, restoredCount) || other.restoredCount == restoredCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BackupState&&(identical(other.status, status) || other.status == status)&&(identical(other.message, message) || other.message == message)&&(identical(other.restoredCount, restoredCount) || other.restoredCount == restoredCount)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,message,restoredCount);
+int get hashCode => Object.hash(runtimeType,status,message,restoredCount,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'BackupState(status: $status, message: $message, restoredCount: $restoredCount)';
+  return 'BackupState(status: $status, message: $message, restoredCount: $restoredCount, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -245,7 +253,7 @@ abstract mixin class _$BackupStateCopyWith<$Res> implements $BackupStateCopyWith
   factory _$BackupStateCopyWith(_BackupState value, $Res Function(_BackupState) _then) = __$BackupStateCopyWithImpl;
 @override @useResult
 $Res call({
- BackupStatus status, String? message, int restoredCount
+ BackupStatus status, String? message, int restoredCount, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -262,12 +270,14 @@ class __$BackupStateCopyWithImpl<$Res>
 
 /// Create a copy of BackupState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? message = freezed,Object? restoredCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? message = freezed,Object? restoredCount = null,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_BackupState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as BackupStatus,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String?,restoredCount: null == restoredCount ? _self.restoredCount : restoredCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 

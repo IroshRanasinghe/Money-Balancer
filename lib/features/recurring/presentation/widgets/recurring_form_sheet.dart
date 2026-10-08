@@ -186,7 +186,9 @@ class _RecurringFormSheetState extends State<RecurringFormSheet> {
       (AccountsBloc b) => [for (final i in b.state.items) i.account],
     );
     return BlocListener<RecurringBloc, RecurringState>(
-      listenWhen: (a, b) => a.savedCount != b.savedCount,
+      // A free-plan limit also closes the sheet; the page opens the paywall.
+      listenWhen: (a, b) =>
+          a.savedCount != b.savedCount || a.paywallCount != b.paywallCount,
       listener: (context, state) {
         if (_submitted) Navigator.pop(context);
       },

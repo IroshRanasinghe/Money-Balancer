@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 mixin _$RecurringState {
 
  RecurringStatus get status; List<RecurringRule> get rules; String? get errorMessage; String? get infoMessage;/// Incremented on every successful save/delete so sheets can close.
- int get savedCount;
+ int get savedCount;/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+ int get paywallCount; PremiumFeature? get paywallFeature;
 /// Create a copy of RecurringState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +28,16 @@ $RecurringStateCopyWith<RecurringState> get copyWith => _$RecurringStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecurringState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.rules, rules)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.infoMessage, infoMessage) || other.infoMessage == infoMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecurringState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.rules, rules)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.infoMessage, infoMessage) || other.infoMessage == infoMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(rules),errorMessage,infoMessage,savedCount);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(rules),errorMessage,infoMessage,savedCount,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'RecurringState(status: $status, rules: $rules, errorMessage: $errorMessage, infoMessage: $infoMessage, savedCount: $savedCount)';
+  return 'RecurringState(status: $status, rules: $rules, errorMessage: $errorMessage, infoMessage: $infoMessage, savedCount: $savedCount, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -46,7 +48,7 @@ abstract mixin class $RecurringStateCopyWith<$Res>  {
   factory $RecurringStateCopyWith(RecurringState value, $Res Function(RecurringState) _then) = _$RecurringStateCopyWithImpl;
 @useResult
 $Res call({
- RecurringStatus status, List<RecurringRule> rules, String? errorMessage, String? infoMessage, int savedCount
+ RecurringStatus status, List<RecurringRule> rules, String? errorMessage, String? infoMessage, int savedCount, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -63,14 +65,16 @@ class _$RecurringStateCopyWithImpl<$Res>
 
 /// Create a copy of RecurringState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? rules = null,Object? errorMessage = freezed,Object? infoMessage = freezed,Object? savedCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? rules = null,Object? errorMessage = freezed,Object? infoMessage = freezed,Object? savedCount = null,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as RecurringStatus,rules: null == rules ? _self.rules : rules // ignore: cast_nullable_to_non_nullable
 as List<RecurringRule>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,infoMessage: freezed == infoMessage ? _self.infoMessage : infoMessage // ignore: cast_nullable_to_non_nullable
 as String?,savedCount: null == savedCount ? _self.savedCount : savedCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 
@@ -155,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RecurringStatus status,  List<RecurringRule> rules,  String? errorMessage,  String? infoMessage,  int savedCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RecurringStatus status,  List<RecurringRule> rules,  String? errorMessage,  String? infoMessage,  int savedCount,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RecurringState() when $default != null:
-return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_that.savedCount);case _:
+return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_that.savedCount,_that.paywallCount,_that.paywallFeature);case _:
   return orElse();
 
 }
@@ -176,10 +180,10 @@ return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RecurringStatus status,  List<RecurringRule> rules,  String? errorMessage,  String? infoMessage,  int savedCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RecurringStatus status,  List<RecurringRule> rules,  String? errorMessage,  String? infoMessage,  int savedCount,  int paywallCount,  PremiumFeature? paywallFeature)  $default,) {final _that = this;
 switch (_that) {
 case _RecurringState():
-return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_that.savedCount);case _:
+return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_that.savedCount,_that.paywallCount,_that.paywallFeature);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +200,10 @@ return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RecurringStatus status,  List<RecurringRule> rules,  String? errorMessage,  String? infoMessage,  int savedCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RecurringStatus status,  List<RecurringRule> rules,  String? errorMessage,  String? infoMessage,  int savedCount,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,) {final _that = this;
 switch (_that) {
 case _RecurringState() when $default != null:
-return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_that.savedCount);case _:
+return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_that.savedCount,_that.paywallCount,_that.paywallFeature);case _:
   return null;
 
 }
@@ -211,7 +215,7 @@ return $default(_that.status,_that.rules,_that.errorMessage,_that.infoMessage,_t
 
 
 class _RecurringState implements RecurringState {
-  const _RecurringState({this.status = RecurringStatus.initial, final  List<RecurringRule> rules = const <RecurringRule>[], this.errorMessage, this.infoMessage, this.savedCount = 0}): _rules = rules;
+  const _RecurringState({this.status = RecurringStatus.initial, final  List<RecurringRule> rules = const <RecurringRule>[], this.errorMessage, this.infoMessage, this.savedCount = 0, this.paywallCount = 0, this.paywallFeature}): _rules = rules;
   
 
 @override@JsonKey() final  RecurringStatus status;
@@ -226,6 +230,10 @@ class _RecurringState implements RecurringState {
 @override final  String? infoMessage;
 /// Incremented on every successful save/delete so sheets can close.
 @override@JsonKey() final  int savedCount;
+/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+@override@JsonKey() final  int paywallCount;
+@override final  PremiumFeature? paywallFeature;
 
 /// Create a copy of RecurringState
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +245,16 @@ _$RecurringStateCopyWith<_RecurringState> get copyWith => __$RecurringStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecurringState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._rules, _rules)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.infoMessage, infoMessage) || other.infoMessage == infoMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecurringState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._rules, _rules)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.infoMessage, infoMessage) || other.infoMessage == infoMessage)&&(identical(other.savedCount, savedCount) || other.savedCount == savedCount)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_rules),errorMessage,infoMessage,savedCount);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_rules),errorMessage,infoMessage,savedCount,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'RecurringState(status: $status, rules: $rules, errorMessage: $errorMessage, infoMessage: $infoMessage, savedCount: $savedCount)';
+  return 'RecurringState(status: $status, rules: $rules, errorMessage: $errorMessage, infoMessage: $infoMessage, savedCount: $savedCount, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -257,7 +265,7 @@ abstract mixin class _$RecurringStateCopyWith<$Res> implements $RecurringStateCo
   factory _$RecurringStateCopyWith(_RecurringState value, $Res Function(_RecurringState) _then) = __$RecurringStateCopyWithImpl;
 @override @useResult
 $Res call({
- RecurringStatus status, List<RecurringRule> rules, String? errorMessage, String? infoMessage, int savedCount
+ RecurringStatus status, List<RecurringRule> rules, String? errorMessage, String? infoMessage, int savedCount, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -274,14 +282,16 @@ class __$RecurringStateCopyWithImpl<$Res>
 
 /// Create a copy of RecurringState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? rules = null,Object? errorMessage = freezed,Object? infoMessage = freezed,Object? savedCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? rules = null,Object? errorMessage = freezed,Object? infoMessage = freezed,Object? savedCount = null,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_RecurringState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as RecurringStatus,rules: null == rules ? _self._rules : rules // ignore: cast_nullable_to_non_nullable
 as List<RecurringRule>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,infoMessage: freezed == infoMessage ? _self.infoMessage : infoMessage // ignore: cast_nullable_to_non_nullable
 as String?,savedCount: null == savedCount ? _self.savedCount : savedCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 

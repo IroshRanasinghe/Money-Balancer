@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../domain/card_number.dart';
@@ -22,6 +23,11 @@ class CardsPage extends StatelessWidget {
 
     return MultiBlocListener(
       listeners: [
+        BlocListener<CardsBloc, CardsState>(
+          listenWhen: (a, b) => a.paywallCount != b.paywallCount,
+          listener: (context, state) =>
+              openPaywall(context, state.paywallFeature!),
+        ),
         BlocListener<CardsBloc, CardsState>(
           listenWhen: (a, b) =>
               a.revealedNumber == null && b.revealedNumber != null,

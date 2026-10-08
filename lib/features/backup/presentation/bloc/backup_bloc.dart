@@ -62,8 +62,15 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
   void _emitDone(Either<Failure, void> result, String successMessage,
       Emitter<BackupState> emit) {
     result.fold(
-      (failure) => emit(state.copyWith(
-          status: BackupStatus.failure, message: failure.message)),
+      (failure) => emit(failure is PremiumRequiredFailure
+          ? state.copyWith(
+              status: BackupStatus.idle,
+              message: null,
+              paywallCount: state.paywallCount + 1,
+              paywallFeature: failure.feature,
+            )
+          : state.copyWith(
+              status: BackupStatus.failure, message: failure.message)),
       (_) => emit(
           state.copyWith(status: BackupStatus.success, message: successMessage)),
     );

@@ -17,7 +17,9 @@ mixin _$CardsState {
  CardsStatus get status; List<CardSpending> get items; String? get errorMessage;/// Set only while the reveal dialog is open; cleared on dismiss.
  String? get revealedCardId;/// SENSITIVE full card number. Never log this state (a BlocObserver
 /// would print it).
- String? get revealedNumber;
+ String? get revealedNumber;/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+ int get paywallCount; PremiumFeature? get paywallFeature;
 /// Create a copy of CardsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $CardsStateCopyWith<CardsState> get copyWith => _$CardsStateCopyWithImpl<CardsSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CardsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.revealedCardId, revealedCardId) || other.revealedCardId == revealedCardId)&&(identical(other.revealedNumber, revealedNumber) || other.revealedNumber == revealedNumber));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CardsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.revealedCardId, revealedCardId) || other.revealedCardId == revealedCardId)&&(identical(other.revealedNumber, revealedNumber) || other.revealedNumber == revealedNumber)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(items),errorMessage,revealedCardId,revealedNumber);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(items),errorMessage,revealedCardId,revealedNumber,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'CardsState(status: $status, items: $items, errorMessage: $errorMessage, revealedCardId: $revealedCardId, revealedNumber: $revealedNumber)';
+  return 'CardsState(status: $status, items: $items, errorMessage: $errorMessage, revealedCardId: $revealedCardId, revealedNumber: $revealedNumber, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $CardsStateCopyWith<$Res>  {
   factory $CardsStateCopyWith(CardsState value, $Res Function(CardsState) _then) = _$CardsStateCopyWithImpl;
 @useResult
 $Res call({
- CardsStatus status, List<CardSpending> items, String? errorMessage, String? revealedCardId, String? revealedNumber
+ CardsStatus status, List<CardSpending> items, String? errorMessage, String? revealedCardId, String? revealedNumber, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -65,14 +67,16 @@ class _$CardsStateCopyWithImpl<$Res>
 
 /// Create a copy of CardsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? revealedCardId = freezed,Object? revealedNumber = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? revealedCardId = freezed,Object? revealedNumber = freezed,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CardsStatus,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<CardSpending>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,revealedCardId: freezed == revealedCardId ? _self.revealedCardId : revealedCardId // ignore: cast_nullable_to_non_nullable
 as String?,revealedNumber: freezed == revealedNumber ? _self.revealedNumber : revealedNumber // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 
@@ -157,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CardsStatus status,  List<CardSpending> items,  String? errorMessage,  String? revealedCardId,  String? revealedNumber)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CardsStatus status,  List<CardSpending> items,  String? errorMessage,  String? revealedCardId,  String? revealedNumber,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CardsState() when $default != null:
-return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId,_that.revealedNumber);case _:
+return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId,_that.revealedNumber,_that.paywallCount,_that.paywallFeature);case _:
   return orElse();
 
 }
@@ -178,10 +182,10 @@ return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CardsStatus status,  List<CardSpending> items,  String? errorMessage,  String? revealedCardId,  String? revealedNumber)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CardsStatus status,  List<CardSpending> items,  String? errorMessage,  String? revealedCardId,  String? revealedNumber,  int paywallCount,  PremiumFeature? paywallFeature)  $default,) {final _that = this;
 switch (_that) {
 case _CardsState():
-return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId,_that.revealedNumber);case _:
+return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId,_that.revealedNumber,_that.paywallCount,_that.paywallFeature);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +202,10 @@ return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CardsStatus status,  List<CardSpending> items,  String? errorMessage,  String? revealedCardId,  String? revealedNumber)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CardsStatus status,  List<CardSpending> items,  String? errorMessage,  String? revealedCardId,  String? revealedNumber,  int paywallCount,  PremiumFeature? paywallFeature)?  $default,) {final _that = this;
 switch (_that) {
 case _CardsState() when $default != null:
-return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId,_that.revealedNumber);case _:
+return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId,_that.revealedNumber,_that.paywallCount,_that.paywallFeature);case _:
   return null;
 
 }
@@ -213,7 +217,7 @@ return $default(_that.status,_that.items,_that.errorMessage,_that.revealedCardId
 
 
 class _CardsState implements CardsState {
-  const _CardsState({this.status = CardsStatus.initial, final  List<CardSpending> items = const <CardSpending>[], this.errorMessage, this.revealedCardId, this.revealedNumber}): _items = items;
+  const _CardsState({this.status = CardsStatus.initial, final  List<CardSpending> items = const <CardSpending>[], this.errorMessage, this.revealedCardId, this.revealedNumber, this.paywallCount = 0, this.paywallFeature}): _items = items;
   
 
 @override@JsonKey() final  CardsStatus status;
@@ -230,6 +234,10 @@ class _CardsState implements CardsState {
 /// SENSITIVE full card number. Never log this state (a BlocObserver
 /// would print it).
 @override final  String? revealedNumber;
+/// Incremented when a save hits a free-plan limit, so the page can open
+/// the paywall for [paywallFeature].
+@override@JsonKey() final  int paywallCount;
+@override final  PremiumFeature? paywallFeature;
 
 /// Create a copy of CardsState
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +249,16 @@ _$CardsStateCopyWith<_CardsState> get copyWith => __$CardsStateCopyWithImpl<_Car
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CardsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.revealedCardId, revealedCardId) || other.revealedCardId == revealedCardId)&&(identical(other.revealedNumber, revealedNumber) || other.revealedNumber == revealedNumber));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CardsState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.revealedCardId, revealedCardId) || other.revealedCardId == revealedCardId)&&(identical(other.revealedNumber, revealedNumber) || other.revealedNumber == revealedNumber)&&(identical(other.paywallCount, paywallCount) || other.paywallCount == paywallCount)&&(identical(other.paywallFeature, paywallFeature) || other.paywallFeature == paywallFeature));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_items),errorMessage,revealedCardId,revealedNumber);
+int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_items),errorMessage,revealedCardId,revealedNumber,paywallCount,paywallFeature);
 
 @override
 String toString() {
-  return 'CardsState(status: $status, items: $items, errorMessage: $errorMessage, revealedCardId: $revealedCardId, revealedNumber: $revealedNumber)';
+  return 'CardsState(status: $status, items: $items, errorMessage: $errorMessage, revealedCardId: $revealedCardId, revealedNumber: $revealedNumber, paywallCount: $paywallCount, paywallFeature: $paywallFeature)';
 }
 
 
@@ -261,7 +269,7 @@ abstract mixin class _$CardsStateCopyWith<$Res> implements $CardsStateCopyWith<$
   factory _$CardsStateCopyWith(_CardsState value, $Res Function(_CardsState) _then) = __$CardsStateCopyWithImpl;
 @override @useResult
 $Res call({
- CardsStatus status, List<CardSpending> items, String? errorMessage, String? revealedCardId, String? revealedNumber
+ CardsStatus status, List<CardSpending> items, String? errorMessage, String? revealedCardId, String? revealedNumber, int paywallCount, PremiumFeature? paywallFeature
 });
 
 
@@ -278,14 +286,16 @@ class __$CardsStateCopyWithImpl<$Res>
 
 /// Create a copy of CardsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? revealedCardId = freezed,Object? revealedNumber = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? items = null,Object? errorMessage = freezed,Object? revealedCardId = freezed,Object? revealedNumber = freezed,Object? paywallCount = null,Object? paywallFeature = freezed,}) {
   return _then(_CardsState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CardsStatus,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<CardSpending>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,revealedCardId: freezed == revealedCardId ? _self.revealedCardId : revealedCardId // ignore: cast_nullable_to_non_nullable
 as String?,revealedNumber: freezed == revealedNumber ? _self.revealedNumber : revealedNumber // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,paywallCount: null == paywallCount ? _self.paywallCount : paywallCount // ignore: cast_nullable_to_non_nullable
+as int,paywallFeature: freezed == paywallFeature ? _self.paywallFeature : paywallFeature // ignore: cast_nullable_to_non_nullable
+as PremiumFeature?,
   ));
 }
 

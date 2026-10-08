@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../premium/domain/entities/premium_feature.dart';
 import '../../domain/entities/account_balance.dart';
 
 part 'accounts_state.freezed.dart';
@@ -15,5 +16,10 @@ abstract class AccountsState with _$AccountsState {
 
     /// Incremented on every successful save/delete so sheets can close.
     @Default(0) int savedCount,
+
+    /// Incremented when a save hits a free-plan limit, so the page can open
+    /// the paywall for [paywallFeature].
+    @Default(0) int paywallCount,
+    PremiumFeature? paywallFeature,
   }) = _AccountsState;
 }
