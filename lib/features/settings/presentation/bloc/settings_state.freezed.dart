@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SettingsState {
 
- AppSettings get settings; String? get errorMessage;
+ AppSettings get settings; String? get errorMessage;/// Whether this platform can show notifications at all.
+ bool get notificationsSupported;/// Whether the OS currently allows notifications.
+ bool get notificationsPermitted;
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $SettingsStateCopyWith<SettingsState> get copyWith => _$SettingsStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.settings, settings) || other.settings == settings)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.settings, settings) || other.settings == settings)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.notificationsSupported, notificationsSupported) || other.notificationsSupported == notificationsSupported)&&(identical(other.notificationsPermitted, notificationsPermitted) || other.notificationsPermitted == notificationsPermitted));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,settings,errorMessage);
+int get hashCode => Object.hash(runtimeType,settings,errorMessage,notificationsSupported,notificationsPermitted);
 
 @override
 String toString() {
-  return 'SettingsState(settings: $settings, errorMessage: $errorMessage)';
+  return 'SettingsState(settings: $settings, errorMessage: $errorMessage, notificationsSupported: $notificationsSupported, notificationsPermitted: $notificationsPermitted)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $SettingsStateCopyWith<$Res>  {
   factory $SettingsStateCopyWith(SettingsState value, $Res Function(SettingsState) _then) = _$SettingsStateCopyWithImpl;
 @useResult
 $Res call({
- AppSettings settings, String? errorMessage
+ AppSettings settings, String? errorMessage, bool notificationsSupported, bool notificationsPermitted
 });
 
 
@@ -62,11 +64,13 @@ class _$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? settings = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? settings = null,Object? errorMessage = freezed,Object? notificationsSupported = null,Object? notificationsPermitted = null,}) {
   return _then(_self.copyWith(
 settings: null == settings ? _self.settings : settings // ignore: cast_nullable_to_non_nullable
 as AppSettings,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,notificationsSupported: null == notificationsSupported ? _self.notificationsSupported : notificationsSupported // ignore: cast_nullable_to_non_nullable
+as bool,notificationsPermitted: null == notificationsPermitted ? _self.notificationsPermitted : notificationsPermitted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of SettingsState
@@ -160,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AppSettings settings,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AppSettings settings,  String? errorMessage,  bool notificationsSupported,  bool notificationsPermitted)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.settings,_that.errorMessage);case _:
+return $default(_that.settings,_that.errorMessage,_that.notificationsSupported,_that.notificationsPermitted);case _:
   return orElse();
 
 }
@@ -181,10 +185,10 @@ return $default(_that.settings,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AppSettings settings,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AppSettings settings,  String? errorMessage,  bool notificationsSupported,  bool notificationsPermitted)  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState():
-return $default(_that.settings,_that.errorMessage);case _:
+return $default(_that.settings,_that.errorMessage,_that.notificationsSupported,_that.notificationsPermitted);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +205,10 @@ return $default(_that.settings,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AppSettings settings,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AppSettings settings,  String? errorMessage,  bool notificationsSupported,  bool notificationsPermitted)?  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.settings,_that.errorMessage);case _:
+return $default(_that.settings,_that.errorMessage,_that.notificationsSupported,_that.notificationsPermitted);case _:
   return null;
 
 }
@@ -216,11 +220,15 @@ return $default(_that.settings,_that.errorMessage);case _:
 
 
 class _SettingsState implements SettingsState {
-  const _SettingsState({this.settings = const AppSettings(), this.errorMessage});
+  const _SettingsState({this.settings = const AppSettings(), this.errorMessage, this.notificationsSupported = false, this.notificationsPermitted = false});
   
 
 @override@JsonKey() final  AppSettings settings;
 @override final  String? errorMessage;
+/// Whether this platform can show notifications at all.
+@override@JsonKey() final  bool notificationsSupported;
+/// Whether the OS currently allows notifications.
+@override@JsonKey() final  bool notificationsPermitted;
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
@@ -232,16 +240,16 @@ _$SettingsStateCopyWith<_SettingsState> get copyWith => __$SettingsStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.settings, settings) || other.settings == settings)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.settings, settings) || other.settings == settings)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.notificationsSupported, notificationsSupported) || other.notificationsSupported == notificationsSupported)&&(identical(other.notificationsPermitted, notificationsPermitted) || other.notificationsPermitted == notificationsPermitted));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,settings,errorMessage);
+int get hashCode => Object.hash(runtimeType,settings,errorMessage,notificationsSupported,notificationsPermitted);
 
 @override
 String toString() {
-  return 'SettingsState(settings: $settings, errorMessage: $errorMessage)';
+  return 'SettingsState(settings: $settings, errorMessage: $errorMessage, notificationsSupported: $notificationsSupported, notificationsPermitted: $notificationsPermitted)';
 }
 
 
@@ -252,7 +260,7 @@ abstract mixin class _$SettingsStateCopyWith<$Res> implements $SettingsStateCopy
   factory _$SettingsStateCopyWith(_SettingsState value, $Res Function(_SettingsState) _then) = __$SettingsStateCopyWithImpl;
 @override @useResult
 $Res call({
- AppSettings settings, String? errorMessage
+ AppSettings settings, String? errorMessage, bool notificationsSupported, bool notificationsPermitted
 });
 
 
@@ -269,11 +277,13 @@ class __$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? settings = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? settings = null,Object? errorMessage = freezed,Object? notificationsSupported = null,Object? notificationsPermitted = null,}) {
   return _then(_SettingsState(
 settings: null == settings ? _self.settings : settings // ignore: cast_nullable_to_non_nullable
 as AppSettings,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,notificationsSupported: null == notificationsSupported ? _self.notificationsSupported : notificationsSupported // ignore: cast_nullable_to_non_nullable
+as bool,notificationsPermitted: null == notificationsPermitted ? _self.notificationsPermitted : notificationsPermitted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

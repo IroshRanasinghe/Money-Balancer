@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/app_settings.dart';
+import '../../domain/usecases/get_notification_status.dart';
 import '../../domain/usecases/get_settings.dart';
 import '../../domain/usecases/request_notification_permission.dart';
 import '../../domain/usecases/save_settings.dart';
@@ -14,7 +15,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc(
     this._getSettings,
     this._saveSettings,
-    this._requestNotificationPermission, {
+    this._requestNotificationPermission,
+    this._getNotificationStatus, {
     AppSettings initialSettings = const AppSettings(),
   }) : super(SettingsState(settings: initialSettings)) {
     on<SettingsLoadRequested>(_onLoad);
@@ -23,18 +25,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<DarkModeToggled>(
         (e, emit) => _save(state.settings.copyWith(darkMode: e.enabled), emit));
     on<BudgetAlertsToggled>(_onBudgetAlertsToggled);
+    on<NotificationStatusRequested>(_onNotificationStatus);
   }
 
   final GetSettings _getSettings;
   final SaveSettings _saveSettings;
   final RequestNotificationPermission _requestNotificationPermission;
+  final GetNotificationStatus _getNotificationStatus;
 
   Future<void> _onLoad(
       SettingsLoadRequested event, Emitter<SettingsState> emit) async {
     final result = await _getSettings();
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
-      (settings) => emit(SettingsState(settings: settings)),
+      (settings) => emit(state.copyWith(settings: settings, errorMessage: null)),
     );
   }
 
@@ -53,15 +57,24 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return;
       }
     }
+    if (event.enabled) emit(state.copyWith(notificationsPermitted: true));
     await _save(
         state.settings.copyWith(budgetAlertsEnabled: event.enabled), emit);
+  }
+
+  Future<void> _onNotificationStatus(
+      NotificationStatusRequested event, Emitter<SettingsState> emit) async {
+    final status = await _getNotificationStatus();
+    emit(state.copyWith(
+        notificationsSupported: status.supported,
+        notificationsPermitted: status.permitted));
   }
 
   Future<void> _save(AppSettings updated, Emitter<SettingsState> emit) async {
     final result = await _saveSettings(updated);
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
-      (_) => emit(SettingsState(settings: updated)),
+      (_) => emit(state.copyWith(settings: updated, errorMessage: null)),
     );
   }
 }

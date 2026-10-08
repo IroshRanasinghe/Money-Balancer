@@ -158,6 +158,11 @@ class _BudgetAlertsTile extends StatelessWidget {
         context.select((PremiumBloc b) => b.state.status.isPremium);
     final enabled = context
         .select((SettingsBloc b) => b.state.settings.budgetAlertsEnabled);
+    final supported =
+        context.select((SettingsBloc b) => b.state.notificationsSupported);
+    final permitted =
+        context.select((SettingsBloc b) => b.state.notificationsPermitted);
+    if (!supported) return const SizedBox.shrink();
     return SwitchListTile(
       title: Row(
         children: [
@@ -169,7 +174,7 @@ class _BudgetAlertsTile extends StatelessWidget {
         ],
       ),
       subtitle: const Text('Notify me at 80% and 100% of a budget'),
-      value: isPremium && enabled,
+      value: isPremium && enabled && permitted,
       onChanged: (value) {
         if (!isPremium) {
           openPaywall(context, PremiumFeature.budgetAlerts);

@@ -40,6 +40,9 @@ class CheckBudgetAlerts {
     if (settings == null || !settings.budgetAlertsEnabled) {
       return const Right(0);
     }
+    // Without OS permission a notification is silently dropped; record
+    // nothing so the alerts still fire once permission is granted.
+    if (!await _notifications.hasPermission()) return const Right(0);
     final progressResult = await _getProgress(
       month: date.month,
       year: date.year,
@@ -49,55 +52,60 @@ class CheckBudgetAlerts {
       return Left(progressResult.swap().getOrElse(() => const CacheFailure()));
     }
 
+    // One budget failing must not stop the others.
     var sent = 0;
     for (final item in items) {
-      final threshold = switch (item.status) {
-        BudgetStatus.exceeded => 100,
-        BudgetStatus.warning => 80,
-        BudgetStatus.onTrack => 0,
-      };
-      if (threshold == 0) continue;
-      final budget = item.budget;
-      final prefix = '${budget.id}_${date.year}_${date.month}';
-      final key = '${prefix}_$threshold';
-
-      final already = await _alerts.wasSent(key);
-      final alreadyFailure = already.swap().toOption().toNullable();
-      if (alreadyFailure != null) return Left(alreadyFailure);
-      if (already.getOrElse(() => false)) continue;
-
-      final String title;
-      final String body;
-      if (threshold == 100) {
-        title = '${budget.category} budget exceeded';
-        body = "You're ${formatCurrency(item.spent - budget.limit, settings.currency)}"
-            ' over your ${formatCurrency(budget.limit, settings.currency)} budget.';
-      } else {
-        title = '${budget.category} budget at ${(item.ratio * 100).round()}%';
-        body = '${formatCurrency(item.remaining, settings.currency)} left of '
-            '${formatCurrency(budget.limit, settings.currency)} this month.';
-      }
-      try {
-        await _notifications.show(
-          id: key.hashCode & 0x7fffffff,
-          title: title,
-          body: body,
-        );
-      } on NotificationException catch (e) {
-        return Left(NotificationFailure(e.message));
-      }
-
-      final marked = await _alerts.markSent(key);
-      final markFailure = marked.swap().toOption().toNullable();
-      if (markFailure != null) return Left(markFailure);
-      if (threshold == 100) {
-        // A later drop-and-rise must not send the stale 80% alert.
-        final marked80 = await _alerts.markSent('${prefix}_80');
-        final failure80 = marked80.swap().toOption().toNullable();
-        if (failure80 != null) return Left(failure80);
-      }
-      sent++;
+      if (await _alert(item, date, settings.currency)) sent++;
     }
     return Right(sent);
+  }
+
+  /// Sends the alert for [item] if due. Returns true when one was shown.
+  Future<bool> _alert(
+    BudgetProgress item,
+    DateTime date,
+    String currency,
+  ) async {
+    final threshold = switch (item.status) {
+      BudgetStatus.exceeded => 100,
+      BudgetStatus.warning => 80,
+      BudgetStatus.onTrack => 0,
+    };
+    if (threshold == 0) return false;
+    final budget = item.budget;
+    final prefix = '${budget.id}_${date.year}_${date.month}';
+    final key = '${prefix}_$threshold';
+
+    final already = await _alerts.wasSent(key);
+    if (already.isLeft() || already.getOrElse(() => false)) return false;
+
+    final String title;
+    final String body;
+    if (threshold == 100) {
+      title = '${budget.category} budget exceeded';
+      body = "You're ${formatCurrency(item.spent - budget.limit, currency)}"
+          ' over your ${formatCurrency(budget.limit, currency)} budget.';
+    } else {
+      title = '${budget.category} budget at ${(item.ratio * 100).floor()}%';
+      body = '${formatCurrency(item.remaining, currency)} left of '
+          '${formatCurrency(budget.limit, currency)} this month.';
+    }
+    try {
+      await _notifications.show(
+        id: key.hashCode & 0x7fffffff,
+        title: title,
+        body: body,
+      );
+    } on NotificationException {
+      return false;
+    }
+
+    final marked = await _alerts.markSent(key);
+    if (marked.isLeft()) return true;
+    if (threshold == 100) {
+      // A later drop-and-rise must not send the stale 80% alert.
+      await _alerts.markSent('${prefix}_80');
+    }
+    return true;
   }
 }

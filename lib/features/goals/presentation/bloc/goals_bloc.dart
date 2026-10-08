@@ -95,20 +95,22 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
       emit(state.copyWith(errorMessage: 'Enter a target greater than 0'));
       return;
     }
+    final id = event.id;
+    final existing = id == null ? null : _find(id);
+    if (id != null && existing == null) {
+      emit(state.copyWith(errorMessage: const NotFoundFailure().message));
+      return;
+    }
     final date = event.targetDate;
-    if (date != null) {
+    // Only a new or changed date must be in the future, so a goal whose date
+    // has passed can still be edited.
+    if (date != null && date != existing?.targetDate) {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       if (date.isBefore(today)) {
         emit(state.copyWith(errorMessage: 'Choose a date in the future'));
         return;
       }
-    }
-    final id = event.id;
-    final existing = id == null ? null : _find(id);
-    if (id != null && existing == null) {
-      emit(state.copyWith(errorMessage: const NotFoundFailure().message));
-      return;
     }
     final result = await _saveGoal(
       SavingsGoal(

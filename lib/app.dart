@@ -17,7 +17,8 @@ class MoneyBalanceApp extends StatelessWidget {
   Widget build(BuildContext context) => MultiBlocProvider(
         providers: [
           BlocProvider<SettingsBloc>(
-            create: (_) => sl<SettingsBloc>(param1: initialSettings),
+            create: (_) => sl<SettingsBloc>(param1: initialSettings)
+              ..add(const NotificationStatusRequested()),
           ),
           BlocProvider<PremiumBloc>(
             create: (_) => sl<PremiumBloc>()..add(const PremiumStarted()),

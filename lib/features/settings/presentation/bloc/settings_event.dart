@@ -31,3 +31,7 @@ class BudgetAlertsToggled extends SettingsEvent {
   @override
   List<Object?> get props => [enabled];
 }
+
+class NotificationStatusRequested extends SettingsEvent {
+  const NotificationStatusRequested();
+}

@@ -216,7 +216,7 @@ class _GoalsSection extends StatelessWidget {
         final incomplete =
             state.goals.where((g) => !g.isCompleted).take(2).toList();
         final empty =
-            state.goals.isEmpty && state.status == GoalsStatus.success;
+            incomplete.isEmpty && state.status == GoalsStatus.success;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
