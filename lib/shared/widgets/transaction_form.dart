@@ -40,6 +40,7 @@ class TransactionForm extends StatefulWidget {
     required this.onSubmit,
     this.cards = const [],
     this.onAddCard,
+    this.cardsLoading = false,
   });
 
   final List<String> categories;
@@ -50,6 +51,9 @@ class TransactionForm extends StatefulWidget {
   final ValueChanged<TransactionFormData> onSubmit;
   final List<BankCard> cards;
   final VoidCallback? onAddCard;
+
+  /// True while the saved cards are still loading; hides the card picker.
+  final bool cardsLoading;
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
@@ -129,6 +133,7 @@ class _TransactionFormState extends State<TransactionForm> {
   }
 
   Widget _buildCardPicker() {
+    if (widget.cardsLoading) return const SizedBox.shrink();
     if (widget.cards.isEmpty && _cardId == null) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -157,7 +162,7 @@ class _TransactionFormState extends State<TransactionForm> {
         if (removed)
           DropdownMenuItem<String?>(
             value: _cardId,
-            child: Text('•••• ${widget.initial?.cardLast4 ?? _cardLast4} (removed)'),
+            child: Text('•••• $_cardLast4 (removed)'),
           ),
       ],
       onChanged: (id) => setState(() {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -66,13 +67,15 @@ class ExpenseFormPage extends StatelessWidget {
         builder: (context, state) => SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: BlocBuilder<CardsBloc, CardsState>(
-            buildWhen: (a, b) => a.items != b.items,
+            buildWhen: (a, b) => a.status != b.status || !listEquals(a.items, b.items),
             builder: (context, cardsState) => TransactionForm(
               categories: AppCategories.expense,
               showPaymentMethod: true,
               initial: initial,
               isSubmitting: state.status == FormSubmissionStatus.submitting,
               submitLabel: isEditing ? 'Update expense' : 'Save expense',
+              cardsLoading: cardsState.status == CardsStatus.initial ||
+                  cardsState.status == CardsStatus.loading,
               cards: [for (final i in cardsState.items) i.card],
               onAddCard: () async {
                 final cardsBloc = context.read<CardsBloc>();
