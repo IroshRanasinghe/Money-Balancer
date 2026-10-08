@@ -33,12 +33,26 @@ class AppCategories {
 
   static const expense = [
     'Food',
+    'Groceries',
     'Transport',
+    'Fuel',
     'Shopping',
+    'Rent',
+    'Lease',
     'Bills',
+    'Utilities',
+    'Subscriptions',
     'Entertainment',
+    'Travel',
     'Health',
+    'Fitness',
+    'Personal Care',
+    'Insurance',
     'Education',
+    'Kids',
+    'Pets',
+    'Donations',
+    'Loan Payments',
     'Other',
   ];
 

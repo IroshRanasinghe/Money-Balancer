@@ -16,6 +16,34 @@ IconData categoryIcon(String category) {
       return Icons.favorite;
     case 'Education':
       return Icons.school;
+    case 'Groceries':
+      return Icons.local_grocery_store;
+    case 'Fuel':
+      return Icons.local_gas_station;
+    case 'Rent':
+      return Icons.home;
+    case 'Lease':
+      return Icons.key;
+    case 'Utilities':
+      return Icons.bolt;
+    case 'Subscriptions':
+      return Icons.subscriptions;
+    case 'Travel':
+      return Icons.flight;
+    case 'Fitness':
+      return Icons.fitness_center;
+    case 'Personal Care':
+      return Icons.spa;
+    case 'Insurance':
+      return Icons.shield;
+    case 'Kids':
+      return Icons.child_care;
+    case 'Pets':
+      return Icons.pets;
+    case 'Donations':
+      return Icons.volunteer_activism;
+    case 'Loan Payments':
+      return Icons.account_balance;
     case 'Salary':
       return Icons.work;
     case 'Freelance':
