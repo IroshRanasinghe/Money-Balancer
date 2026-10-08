@@ -22,10 +22,9 @@ class SettingsPage extends StatelessWidget {
           ),
           BlocListener<BackupBloc, BackupState>(
             listenWhen: (a, b) =>
-                (a.status == BackupStatus.working &&
-                    b.status != BackupStatus.working &&
-                    b.message != null) ||
-                a.restoredCount != b.restoredCount,
+                a.status == BackupStatus.working &&
+                b.status != BackupStatus.working &&
+                b.message != null,
             listener: (context, state) {
               if (state.message != null) {
                 ScaffoldMessenger.of(context)

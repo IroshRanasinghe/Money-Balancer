@@ -71,7 +71,11 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
       throw const InvalidBackupException('This is not a Money Balance backup.');
     }
     final version = data['version'];
-    if (version is! int || version > _version) {
+    if (version is! int) {
+      throw const InvalidBackupException(
+          'This file is not a Money Balance backup.');
+    }
+    if (version > _version) {
       throw const InvalidBackupException(
           'This backup was made by a newer version of the app.');
     }
@@ -99,37 +103,53 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
       throw const InvalidBackupException(_damaged);
     }
 
-    final List<String> oldCardIds;
+    final txMap = {for (final m in transactions) m.id: m};
+    final budgetMap = {for (final m in budgets) m.id: m};
+    final cardMap = {for (final m in cards) m.id: m};
+    final accountMap = {for (final m in accounts) m.id: m};
+    final transferMap = {for (final m in transfers) m.id: m};
+    final ruleMap = {for (final m in rules) m.id: m};
+
+    final oldCardIds = _cards.keys.map((k) => k.toString()).toList();
+    final snapshot = _Snapshot(
+      transactions: Map<dynamic, TransactionModel>.of(_transactions.toMap()),
+      budgets: Map<dynamic, BudgetModel>.of(_budgets.toMap()),
+      cards: Map<dynamic, CardModel>.of(_cards.toMap()),
+      accounts: Map<dynamic, AccountModel>.of(_accounts.toMap()),
+      transfers: Map<dynamic, TransferModel>.of(_transfers.toMap()),
+      rules: Map<dynamic, RecurringRuleModel>.of(_recurring.toMap()),
+      settings: _settings.get(HiveSettingsLocalDataSource.settingsKey),
+    );
     try {
-      oldCardIds = _cards.keys.map((k) => k.toString()).toList();
-      await _replace(_transactions, {for (final m in transactions) m.id: m});
-      await _replace(_budgets, {for (final m in budgets) m.id: m});
-      await _replace(_cards, {for (final m in cards) m.id: m});
-      await _replace(_accounts, {for (final m in accounts) m.id: m});
-      await _replace(_transfers, {for (final m in transfers) m.id: m});
-      await _replace(_recurring, {for (final m in rules) m.id: m});
+      await _replace(_transactions, txMap);
+      await _replace(_budgets, budgetMap);
+      await _replace(_cards, cardMap);
+      await _replace(_accounts, accountMap);
+      await _replace(_transfers, transferMap);
+      await _replace(_recurring, ruleMap);
       if (settings != null) {
         await _settings.put(HiveSettingsLocalDataSource.settingsKey, settings);
       }
     } catch (e) {
+      await _rollback(snapshot);
       throw CacheException('Failed to restore data: $e');
     }
 
-    final newCardIds = {for (final c in cards) c.id};
+    // Only after every write succeeded.
     for (final id in oldCardIds) {
-      if (newCardIds.contains(id)) continue;
+      if (cardMap.containsKey(id)) continue;
       try {
         await _cardNumbers.delete(id);
       } catch (_) {}
     }
 
     return BackupCounts(
-      transactions: transactions.length,
-      budgets: budgets.length,
-      cards: cards.length,
-      accounts: accounts.length,
-      transfers: transfers.length,
-      recurringRules: rules.length,
+      transactions: txMap.length,
+      budgets: budgetMap.length,
+      cards: cardMap.length,
+      accounts: accountMap.length,
+      transfers: transferMap.length,
+      recurringRules: ruleMap.length,
     );
   }
 
@@ -142,8 +162,50 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
         .toList();
   }
 
+  Future<void> _rollback(_Snapshot s) async {
+    Future<void> restore<T>(Box<T> box, Map<dynamic, T> entries) async {
+      try {
+        await box.clear();
+        await box.putAll(entries);
+      } catch (_) {}
+    }
+
+    await restore(_transactions, s.transactions);
+    await restore(_budgets, s.budgets);
+    await restore(_cards, s.cards);
+    await restore(_accounts, s.accounts);
+    await restore(_transfers, s.transfers);
+    await restore(_recurring, s.rules);
+    final settings = s.settings;
+    if (settings != null) {
+      try {
+        await _settings.put(HiveSettingsLocalDataSource.settingsKey, settings);
+      } catch (_) {}
+    }
+  }
+
   Future<void> _replace<T>(Box<T> box, Map<String, T> entries) async {
     await box.clear();
     await box.putAll(entries);
   }
+}
+
+class _Snapshot {
+  const _Snapshot({
+    required this.transactions,
+    required this.budgets,
+    required this.cards,
+    required this.accounts,
+    required this.transfers,
+    required this.rules,
+    required this.settings,
+  });
+
+  final Map<dynamic, TransactionModel> transactions;
+  final Map<dynamic, BudgetModel> budgets;
+  final Map<dynamic, CardModel> cards;
+  final Map<dynamic, AccountModel> accounts;
+  final Map<dynamic, TransferModel> transfers;
+  final Map<dynamic, RecurringRuleModel> rules;
+  final AppSettingsModel? settings;
 }
