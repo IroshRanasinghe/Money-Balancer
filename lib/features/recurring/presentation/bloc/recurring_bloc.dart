@@ -54,7 +54,6 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
         state.copyWith(
           status: RecurringStatus.success,
           rules: rules,
-          errorMessage: null,
         ),
       ),
     );
@@ -63,15 +62,18 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
   /// Generates anything now due, reports how many were added, then reloads.
   Future<void> _processAndReload(Emitter<RecurringState> emit) async {
     final processed = await _processDue(DateTime.now());
-    processed.fold((_) {}, (n) {
-      if (n > 0) {
-        emit(
-          state.copyWith(
-            infoMessage: 'Added $n transaction${n == 1 ? '' : 's'}',
-          ),
-        );
-      }
-    });
+    processed.fold(
+      (failure) => emit(state.copyWith(errorMessage: failure.message)),
+      (n) {
+        if (n > 0) {
+          emit(
+            state.copyWith(
+              infoMessage: 'Added $n transaction${n == 1 ? '' : 's'}',
+            ),
+          );
+        }
+      },
+    );
     await _load(emit);
   }
 
@@ -99,12 +101,24 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
     }
     RecurringRule? existing;
     if (event.id != null) {
-      for (final r in state.rules) {
-        if (r.id == event.id) existing = r;
-      }
+      final fresh = await _freshRule(event.id!, emit);
+      if (fresh == null) return;
+      existing = fresh;
     }
     final prior = existing;
     final started = prior != null && prior.generatedCount > 0;
+    if (!started) {
+      final now = DateTime.now();
+      final limit = DateTime(now.year - 1, now.month, now.day);
+      if (event.startDate.isBefore(limit)) {
+        emit(
+          state.copyWith(
+            errorMessage: 'Start date can be at most one year ago',
+          ),
+        );
+        return;
+      }
+    }
     final notes = event.notes?.trim();
     final rule = RecurringRule(
       id: existing?.id ?? event.id ?? _uuid.v4(),
@@ -130,10 +144,7 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
     Emitter<RecurringState> emit,
   ) async {
     emit(state.copyWith(errorMessage: null, infoMessage: null));
-    RecurringRule? existing;
-    for (final r in state.rules) {
-      if (r.id == event.id) existing = r;
-    }
+    final existing = await _freshRule(event.id, emit);
     if (existing == null) return;
     final result = await _saveRule(existing.copyWith(isActive: event.isActive));
     result.fold(
@@ -146,6 +157,27 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
     } else {
       await _load(emit);
     }
+  }
+
+  /// Reads the rule straight from storage so a concurrent handler's
+  /// `generatedCount` is never overwritten. Emits an error and returns null on
+  /// failure or when the rule no longer exists.
+  Future<RecurringRule?> _freshRule(
+    String id,
+    Emitter<RecurringState> emit,
+  ) async {
+    final result = await _getRules();
+    final failure = result.fold<Failure?>((f) => f, (_) => null);
+    if (failure != null) {
+      emit(state.copyWith(errorMessage: failure.message));
+      return null;
+    }
+    final rules = result.getOrElse(() => const <RecurringRule>[]);
+    for (final r in rules) {
+      if (r.id == id) return r;
+    }
+    emit(state.copyWith(errorMessage: const NotFoundFailure().message));
+    return null;
   }
 
   Future<void> _onDelete(

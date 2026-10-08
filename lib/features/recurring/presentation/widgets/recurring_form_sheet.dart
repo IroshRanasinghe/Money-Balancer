@@ -80,10 +80,12 @@ class _RecurringFormSheetState extends State<RecurringFormSheet> {
   bool get _scheduleLocked => (widget.existing?.generatedCount ?? 0) > 0;
 
   Future<void> _pickStart() async {
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 1, now.month, now.day);
     final picked = await showDatePicker(
       context: context,
-      initialDate: _startDate,
-      firstDate: DateTime(2000),
+      initialDate: _startDate.isBefore(firstDate) ? firstDate : _startDate,
+      firstDate: firstDate,
       lastDate: DateTime(2100),
     );
     if (picked == null) return;
