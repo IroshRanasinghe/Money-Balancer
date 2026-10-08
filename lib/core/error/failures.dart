@@ -26,3 +26,11 @@ class AccountInUseFailure extends Failure {
       [super.message =
           'This account has transactions or transfers. Remove them first.']);
 }
+
+class InvalidBackupFailure extends Failure {
+  const InvalidBackupFailure(super.message);
+}
+
+class FileFailure extends Failure {
+  const FileFailure([super.message = 'Could not open or save the file.']);
+}

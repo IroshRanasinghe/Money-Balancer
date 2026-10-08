@@ -1,0 +1,40 @@
+import 'package:dartz/dartz.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../core/error/failures.dart';
+import '../../../accounts/domain/repositories/account_repository.dart';
+import '../../../transactions/domain/repositories/transaction_repository.dart';
+import '../repositories/backup_repository.dart';
+import '../transactions_csv.dart';
+
+class ExportTransactionsCsv {
+  const ExportTransactionsCsv(
+      this._transactions, this._accounts, this._backup);
+
+  final TransactionRepository _transactions;
+  final AccountRepository _accounts;
+  final BackupRepository _backup;
+
+  Future<Either<Failure, void>> call(DateTime now) async {
+    final txResult = await _transactions.getTransactions();
+    final accResult = await _accounts.getAccounts();
+    return txResult.fold(
+      (failure) async => Left(failure),
+      (txs) async => accResult.fold(
+        (failure) async => Left(failure),
+        (accounts) async {
+          if (txs.isEmpty) {
+            return const Left(ValidationFailure('No transactions to export yet.'));
+          }
+          final names = {for (final a in accounts) a.id: a.name};
+          return _backup.shareFile(
+            fileName:
+                'money_balance_transactions_${DateFormat('yyyy-MM-dd').format(now)}.csv',
+            content: buildTransactionsCsv(txs, names),
+            mimeType: 'text/csv',
+          );
+        },
+      ),
+    );
+  }
+}

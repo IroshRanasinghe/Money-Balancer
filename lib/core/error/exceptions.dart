@@ -14,3 +14,11 @@ class CacheException extends AppException {
 class NotFoundException extends AppException {
   const NotFoundException([super.message = 'Item not found.']);
 }
+
+class InvalidBackupException extends AppException {
+  const InvalidBackupException(super.message);
+}
+
+class FileException extends AppException {
+  const FileException([super.message = 'Could not open or save the file.']);
+}

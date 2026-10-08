@@ -24,10 +24,3 @@ class DarkModeToggled extends SettingsEvent {
   @override
   List<Object?> get props => [enabled];
 }
-
-class LanguageChanged extends SettingsEvent {
-  const LanguageChanged(this.language);
-  final String language;
-  @override
-  List<Object?> get props => [language];
-}

@@ -3,19 +3,43 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/constants.dart';
+import '../../../backup/presentation/bloc/backup_bloc.dart';
 import '../bloc/settings_bloc.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) => BlocListener<SettingsBloc, SettingsState>(
-        listenWhen: (a, b) =>
-            a.errorMessage != b.errorMessage && b.errorMessage != null,
-        listener: (context, state) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
-        },
+  Widget build(BuildContext context) => MultiBlocListener(
+        listeners: [
+          BlocListener<SettingsBloc, SettingsState>(
+            listenWhen: (a, b) =>
+                a.errorMessage != b.errorMessage && b.errorMessage != null,
+            listener: (context, state) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+            },
+          ),
+          BlocListener<BackupBloc, BackupState>(
+            listenWhen: (a, b) =>
+                (a.status == BackupStatus.working &&
+                    b.status != BackupStatus.working &&
+                    b.message != null) ||
+                a.restoredCount != b.restoredCount,
+            listener: (context, state) {
+              if (state.message != null) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.message!)));
+              }
+            },
+          ),
+          BlocListener<BackupBloc, BackupState>(
+            listenWhen: (a, b) => a.restoredCount != b.restoredCount,
+            listener: (context, state) => context
+                .read<SettingsBloc>()
+                .add(const SettingsLoadRequested()),
+          ),
+        ],
         child: Scaffold(
           appBar: AppBar(title: const Text('Settings')),
           body: BlocBuilder<SettingsBloc, SettingsState>(
@@ -44,18 +68,6 @@ class SettingsPage extends StatelessWidget {
                           title: const Text('Dark mode'),
                           value: state.settings.darkMode,
                           onChanged: (value) => bloc.add(DarkModeToggled(value)),
-                        ),
-                        ListTile(
-                          title: const Text('Language'),
-                          trailing: DropdownButton<String>(
-                            value: state.settings.language,
-                            items: const [
-                              DropdownMenuItem(value: 'en', child: Text('English')),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) bloc.add(LanguageChanged(value));
-                            },
-                          ),
                         ),
                       ],
                     ),
@@ -87,10 +99,90 @@ class SettingsPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  const _DataCard(),
                 ],
               );
             },
           ),
         ),
+      );
+}
+
+class _DataCard extends StatelessWidget {
+  const _DataCard();
+
+  Future<void> _confirmRestore(BuildContext context) async {
+    final bloc = context.read<BackupBloc>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Restore from backup?'),
+        content: const Text(
+            "This replaces all data on this device with the backup. This can't be undone."),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(ctx).colorScheme.error),
+            child: const Text('Restore'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) bloc.add(const BackupRestoreRequested());
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocBuilder<BackupBloc, BackupState>(
+        buildWhen: (a, b) => (a.status == BackupStatus.working) !=
+            (b.status == BackupStatus.working),
+        builder: (context, state) {
+          final working = state.status == BackupStatus.working;
+          final bloc = context.read<BackupBloc>();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 8),
+                child: Text('Data',
+                    style: Theme.of(context).textTheme.titleSmall),
+              ),
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    if (working) const LinearProgressIndicator(minHeight: 2),
+                    ListTile(
+                      enabled: !working,
+                      leading: const Icon(Icons.table_chart_outlined),
+                      title: const Text('Export transactions (CSV)'),
+                      onTap: () => bloc.add(const CsvExportRequested()),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      enabled: !working,
+                      leading: const Icon(Icons.backup_outlined),
+                      title: const Text('Back up data'),
+                      subtitle: const Text('Card numbers are not included'),
+                      onTap: () => bloc.add(const BackupExportRequested()),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      enabled: !working,
+                      leading: const Icon(Icons.restore),
+                      title: const Text('Restore from backup'),
+                      onTap: () => _confirmRestore(context),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       );
 }

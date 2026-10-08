@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../../features/accounts/accounts_injection.dart';
+import '../../features/backup/backup_injection.dart';
 import '../../features/budget/budget_injection.dart';
 import '../../features/cards/cards_injection.dart';
 import '../../features/dashboard/dashboard_injection.dart';
@@ -30,4 +31,5 @@ Future<void> initDependencies() async {
   registerDashboard(sl);
   registerBudget(sl);
   registerReports(sl);
+  registerBackup(sl);
 }

@@ -20,8 +20,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         (e, emit) => _save(state.settings.copyWith(currency: e.currency), emit));
     on<DarkModeToggled>(
         (e, emit) => _save(state.settings.copyWith(darkMode: e.enabled), emit));
-    on<LanguageChanged>(
-        (e, emit) => _save(state.settings.copyWith(language: e.language), emit));
   }
 
   final GetSettings _getSettings;
