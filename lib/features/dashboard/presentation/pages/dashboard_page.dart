@@ -109,7 +109,16 @@ class _Content extends StatelessWidget {
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
-          BalanceCard(balance: summary.totalBalance, currencyCode: currency),
+          BalanceCard(
+            balance: summary.totalBalance,
+            currencyCode: currency,
+            onTap: () async {
+              await context.push(AppRoutes.accounts);
+              if (context.mounted) {
+                bloc.add(const DashboardLoadRequested());
+              }
+            },
+          ),
           const SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

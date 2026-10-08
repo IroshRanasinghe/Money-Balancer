@@ -16,6 +16,7 @@ class TransactionModel {
     this.notes,
     this.cardId,
     this.cardLast4,
+    this.accountId,
     required this.createdAt,
   });
 
@@ -32,6 +33,7 @@ class TransactionModel {
         notes: t.notes,
         cardId: t.cardId,
         cardLast4: t.cardLast4,
+        accountId: t.accountId,
         createdAt: t.createdAt,
       );
 
@@ -44,6 +46,7 @@ class TransactionModel {
   final String? notes;
   final String? cardId;
   final String? cardLast4;
+  final String? accountId;
   final DateTime createdAt;
 
   Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
@@ -58,6 +61,7 @@ class TransactionModel {
         notes: notes,
         cardId: cardId,
         cardLast4: cardLast4,
+        accountId: accountId,
         createdAt: createdAt,
       );
 }

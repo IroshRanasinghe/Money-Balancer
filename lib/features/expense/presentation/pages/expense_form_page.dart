@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/constants.dart';
 import '../../../../shared/form_submission_status.dart';
 import '../../../../shared/widgets/transaction_form.dart';
+import '../../../accounts/presentation/bloc/accounts_bloc.dart';
 import '../../../cards/presentation/bloc/cards_bloc.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../bloc/expense_bloc.dart';
@@ -66,27 +67,39 @@ class ExpenseFormPage extends StatelessWidget {
         },
         builder: (context, state) => SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: BlocBuilder<CardsBloc, CardsState>(
-            buildWhen: (a, b) => a.status != b.status || !listEquals(a.items, b.items),
-            builder: (context, cardsState) => TransactionForm(
-              categories: AppCategories.expense,
-              showPaymentMethod: true,
-              initial: initial,
-              isSubmitting: state.status == FormSubmissionStatus.submitting,
-              submitLabel: isEditing ? 'Update expense' : 'Save expense',
-              cardsLoading: cardsState.status == CardsStatus.initial ||
-                  cardsState.status == CardsStatus.loading,
-              cards: [for (final i in cardsState.items) i.card],
-              onAddCard: () async {
-                final cardsBloc = context.read<CardsBloc>();
-                await context.push(AppRoutes.cards);
-                if (context.mounted) {
-                  cardsBloc.add(const CardsLoadRequested());
-                }
-              },
-              onSubmit: (data) =>
-                  context.read<ExpenseBloc>().add(ExpenseSubmitted(data)),
-            ),
+          child: BlocBuilder<AccountsBloc, AccountsState>(
+            buildWhen: (a, b) =>
+                a.status != b.status || !listEquals(a.items, b.items),
+            builder: (context, accountsState) =>
+                BlocBuilder<CardsBloc, CardsState>(
+                  buildWhen: (a, b) =>
+                      a.status != b.status || !listEquals(a.items, b.items),
+                  builder: (context, cardsState) => TransactionForm(
+                    accountsLoading:
+                        accountsState.status == AccountsStatus.initial ||
+                        accountsState.status == AccountsStatus.loading,
+                    accounts: [for (final i in accountsState.items) i.account],
+                    categories: AppCategories.expense,
+                    showPaymentMethod: true,
+                    initial: initial,
+                    isSubmitting:
+                        state.status == FormSubmissionStatus.submitting,
+                    submitLabel: isEditing ? 'Update expense' : 'Save expense',
+                    cardsLoading:
+                        cardsState.status == CardsStatus.initial ||
+                        cardsState.status == CardsStatus.loading,
+                    cards: [for (final i in cardsState.items) i.card],
+                    onAddCard: () async {
+                      final cardsBloc = context.read<CardsBloc>();
+                      await context.push(AppRoutes.cards);
+                      if (context.mounted) {
+                        cardsBloc.add(const CardsLoadRequested());
+                      }
+                    },
+                    onSubmit: (data) =>
+                        context.read<ExpenseBloc>().add(ExpenseSubmitted(data)),
+                  ),
+                ),
           ),
         ),
       ),

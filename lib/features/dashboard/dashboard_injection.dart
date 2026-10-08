@@ -5,7 +5,7 @@ import 'presentation/bloc/dashboard_bloc.dart';
 
 void registerDashboard(GetIt sl) {
   // Use cases
-  sl.registerFactory(() => GetDashboardSummary(sl()));
+  sl.registerFactory(() => GetDashboardSummary(sl(), sl()));
   // BLoCs
   sl.registerFactory(() => DashboardBloc(sl()));
 }

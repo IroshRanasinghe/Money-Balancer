@@ -7,6 +7,8 @@ class AppRoutes {
   static const reports = '/reports';
   static const settings = '/settings';
   static const cards = '/cards';
+  static const accounts = '/accounts';
+  static const accountDetail = '/accounts/detail';
   static const addExpense = '/expense/add';
   static const editExpense = '/expense/edit';
   static const addIncome = '/income/add';
@@ -20,6 +22,8 @@ class HiveBoxes {
   static const budgets = 'budgets';
   static const settings = 'app_settings';
   static const cards = 'cards';
+  static const accounts = 'accounts';
+  static const transfers = 'transfers';
 }
 
 class HiveTypeIds {
@@ -29,6 +33,8 @@ class HiveTypeIds {
   static const budget = 1;
   static const settings = 2;
   static const card = 3;
+  static const account = 4;
+  static const transfer = 5;
 }
 
 class AppCategories {

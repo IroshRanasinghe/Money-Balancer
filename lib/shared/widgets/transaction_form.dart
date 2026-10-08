@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/utils/formatters.dart';
 import '../../core/config/constants.dart';
+import '../../features/accounts/domain/entities/account.dart';
 import '../../features/cards/domain/entities/bank_card.dart';
 import '../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../features/transactions/domain/entities/transaction.dart';
@@ -18,6 +19,7 @@ class TransactionFormData {
     this.notes,
     this.cardId,
     this.cardLast4,
+    this.accountId,
   });
 
   final String amountText;
@@ -27,6 +29,7 @@ class TransactionFormData {
   final String? notes;
   final String? cardId;
   final String? cardLast4;
+  final String? accountId;
 }
 
 class TransactionForm extends StatefulWidget {
@@ -41,6 +44,8 @@ class TransactionForm extends StatefulWidget {
     this.cards = const [],
     this.onAddCard,
     this.cardsLoading = false,
+    this.accounts = const [],
+    this.accountsLoading = false,
   });
 
   final List<String> categories;
@@ -54,6 +59,10 @@ class TransactionForm extends StatefulWidget {
 
   /// True while the saved cards are still loading; hides the card picker.
   final bool cardsLoading;
+  final List<Account> accounts;
+
+  /// True while accounts are still loading; hides the account picker.
+  final bool accountsLoading;
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
@@ -68,6 +77,7 @@ class _TransactionFormState extends State<TransactionForm> {
   late String _paymentMethod;
   String? _cardId;
   String? _cardLast4;
+  String? _accountId;
   bool _categoryError = false;
 
   @override
@@ -83,6 +93,7 @@ class _TransactionFormState extends State<TransactionForm> {
     _paymentMethod = initial?.paymentMethod ?? PaymentMethods.all.first;
     _cardId = initial?.cardId;
     _cardLast4 = initial?.cardLast4;
+    _accountId = initial?.accountId;
   }
 
   @override
@@ -128,6 +139,7 @@ class _TransactionFormState extends State<TransactionForm> {
         notes: notes.isEmpty ? null : notes,
         cardId: isCard ? _cardId : null,
         cardLast4: isCard ? _cardLast4 : null,
+        accountId: _accountId,
       ),
     );
   }
@@ -175,6 +187,35 @@ class _TransactionFormState extends State<TransactionForm> {
               match.isNotEmpty ? match.first.last4 : widget.initial?.cardLast4;
         }
       }),
+    );
+  }
+
+  Widget _buildAccountPicker() {
+    if (widget.accountsLoading || widget.accounts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final knownIds = {for (final a in widget.accounts) a.id};
+    final removed = _accountId != null && !knownIds.contains(_accountId);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: DropdownButtonFormField<String?>(
+        initialValue: _accountId,
+        decoration: const InputDecoration(labelText: 'Account'),
+        items: [
+          const DropdownMenuItem<String?>(
+            value: null,
+            child: Text('No account'),
+          ),
+          for (final a in widget.accounts)
+            DropdownMenuItem<String?>(value: a.id, child: Text(a.name)),
+          if (removed)
+            DropdownMenuItem<String?>(
+              value: _accountId,
+              child: const Text('(removed account)'),
+            ),
+        ],
+        onChanged: (id) => setState(() => _accountId = id),
+      ),
     );
   }
 
@@ -259,6 +300,7 @@ class _TransactionFormState extends State<TransactionForm> {
               _buildCardPicker(),
             ],
           ],
+          _buildAccountPicker(),
           const SizedBox(height: 16),
           TextFormField(
             controller: _notesController,

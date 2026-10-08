@@ -20,3 +20,9 @@ class NotFoundFailure extends Failure {
 class ValidationFailure extends Failure {
   const ValidationFailure(super.message);
 }
+
+class AccountInUseFailure extends Failure {
+  const AccountInUseFailure(
+      [super.message =
+          'This account has transactions or transfers. Remove them first.']);
+}

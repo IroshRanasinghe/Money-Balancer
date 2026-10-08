@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/accounts/accounts_routes.dart';
 import '../../features/budget/budget_routes.dart';
 import '../../features/cards/cards_routes.dart';
 import '../../features/dashboard/dashboard_routes.dart';
@@ -40,6 +41,9 @@ final GoRouter appRouter = GoRouter(
       ],
     ),
     GoRoute(path: AppRoutes.cards, builder: cardsRouteBuilder),
+    GoRoute(path: AppRoutes.accounts, builder: accountsRouteBuilder),
+    GoRoute(
+        path: AppRoutes.accountDetail, builder: accountDetailRouteBuilder),
     GoRoute(path: AppRoutes.addExpense, builder: addExpenseRouteBuilder),
     GoRoute(path: AppRoutes.editExpense, builder: editExpenseRouteBuilder),
     GoRoute(path: AppRoutes.addIncome, builder: addIncomeRouteBuilder),

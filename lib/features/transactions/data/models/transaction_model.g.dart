@@ -17,6 +17,7 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
       notes: json['notes'] as String?,
       cardId: json['cardId'] as String?,
       cardLast4: json['cardLast4'] as String?,
+      accountId: json['accountId'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
@@ -31,6 +32,7 @@ Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) =>
       'notes': instance.notes,
       'cardId': instance.cardId,
       'cardLast4': instance.cardLast4,
+      'accountId': instance.accountId,
       'createdAt': instance.createdAt.toIso8601String(),
     };
 

@@ -70,6 +70,7 @@ class IncomeBloc extends Bloc<IncomeEvent, IncomeState> {
             category: category,
             date: data.date,
             notes: data.notes,
+            accountId: data.accountId,
           )
         : await _updateTransaction(
             current.copyWith(
@@ -77,6 +78,7 @@ class IncomeBloc extends Bloc<IncomeEvent, IncomeState> {
               category: category,
               date: data.date,
               notes: data.notes,
+              accountId: data.accountId,
             ),
           );
     _emitResult(result, emit);

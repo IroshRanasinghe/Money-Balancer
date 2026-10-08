@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/di/injection_container.dart';
+import '../accounts/presentation/bloc/accounts_bloc.dart';
 import '../cards/presentation/bloc/cards_bloc.dart';
 import '../transactions/domain/entities/transaction.dart';
 import 'presentation/bloc/expense_bloc.dart';
@@ -14,6 +15,9 @@ Widget addExpenseRouteBuilder(BuildContext context, GoRouterState state) =>
         BlocProvider(create: (_) => sl<ExpenseBloc>(param1: null)),
         BlocProvider(
           create: (_) => sl<CardsBloc>()..add(const CardsLoadRequested()),
+        ),
+        BlocProvider(
+          create: (_) => sl<AccountsBloc>()..add(const AccountsLoadRequested()),
         ),
       ],
       child: const ExpenseFormPage(),
@@ -28,6 +32,9 @@ Widget editExpenseRouteBuilder(BuildContext context, GoRouterState state) {
       BlocProvider(create: (_) => sl<ExpenseBloc>(param1: initial)),
       BlocProvider(
         create: (_) => sl<CardsBloc>()..add(const CardsLoadRequested()),
+      ),
+      BlocProvider(
+        create: (_) => sl<AccountsBloc>()..add(const AccountsLoadRequested()),
       ),
     ],
     child: ExpenseFormPage(initial: initial),

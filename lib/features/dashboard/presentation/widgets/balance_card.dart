@@ -8,13 +8,26 @@ class BalanceCard extends StatelessWidget {
     super.key,
     required this.balance,
     required this.currencyCode,
+    this.onTap,
   });
 
   final double balance;
   final String currencyCode;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: _card(),
+      ),
+    );
+  }
+
+  Widget _card() {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -50,9 +63,19 @@ class BalanceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Total balance',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                const Row(
+                  children: [
+                    Text(
+                      'Total balance',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    Spacer(),
+                    Text(
+                      'Accounts',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                    Icon(Icons.chevron_right, color: Colors.white70, size: 18),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 TweenAnimationBuilder<double>(

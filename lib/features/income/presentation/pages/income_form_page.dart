@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/constants.dart';
 import '../../../../shared/form_submission_status.dart';
 import '../../../../shared/widgets/transaction_form.dart';
+import '../../../accounts/presentation/bloc/accounts_bloc.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../bloc/income_bloc.dart';
 
@@ -64,14 +66,21 @@ class IncomeFormPage extends StatelessWidget {
         },
         builder: (context, state) => SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: TransactionForm(
-            categories: AppCategories.income,
-            showPaymentMethod: false,
-            initial: initial,
-            isSubmitting: state.status == FormSubmissionStatus.submitting,
-            submitLabel: isEditing ? 'Update income' : 'Save income',
-            onSubmit: (data) =>
-                context.read<IncomeBloc>().add(IncomeSubmitted(data)),
+          child: BlocBuilder<AccountsBloc, AccountsState>(
+            buildWhen: (a, b) =>
+                a.status != b.status || !listEquals(a.items, b.items),
+            builder: (context, accountsState) => TransactionForm(
+              categories: AppCategories.income,
+              showPaymentMethod: false,
+              initial: initial,
+              isSubmitting: state.status == FormSubmissionStatus.submitting,
+              submitLabel: isEditing ? 'Update income' : 'Save income',
+              accountsLoading: accountsState.status == AccountsStatus.initial ||
+                  accountsState.status == AccountsStatus.loading,
+              accounts: [for (final i in accountsState.items) i.account],
+              onSubmit: (data) =>
+                  context.read<IncomeBloc>().add(IncomeSubmitted(data)),
+            ),
           ),
         ),
       ),

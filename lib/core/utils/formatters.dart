@@ -26,3 +26,26 @@ double? parseAmount(String input) {
   if (value == null || !value.isFinite || value <= 0) return null;
   return value;
 }
+
+/// Like [parseAmount] but for values that may be zero or negative (e.g. an
+/// opening balance). Empty input is 0; an optional leading `-` is allowed.
+/// Returns null for invalid input.
+double? parseSignedAmount(String input) {
+  final trimmed = input.trim();
+  if (trimmed.isEmpty) return 0;
+  final negative = trimmed.startsWith('-');
+  final body = negative ? trimmed.substring(1) : trimmed;
+  if (body.isEmpty) return null;
+  final value = parseAmount(body) ?? (_isZeroAmount(body) ? 0.0 : null);
+  if (value == null) return null;
+  return negative && value != 0 ? -value : value;
+}
+
+bool _isZeroAmount(String body) {
+  var normalized = body;
+  if (body.contains(',')) {
+    if (!RegExp(r'^[^,.]*,\d{1,2}$').hasMatch(body)) return false;
+    normalized = body.replaceAll(',', '.');
+  }
+  return double.tryParse(normalized) == 0;
+}

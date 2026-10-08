@@ -73,6 +73,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
             notes: data.notes,
             cardId: data.cardId,
             cardLast4: data.cardLast4,
+            accountId: data.accountId,
           )
         : await _updateTransaction(
             current.copyWith(
@@ -83,6 +84,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               notes: data.notes,
               cardId: data.cardId,
               cardLast4: data.cardLast4,
+              accountId: data.accountId,
             ),
           );
     _emitResult(result, emit);

@@ -19,6 +19,7 @@ class AddExpense {
     String? notes,
     String? cardId,
     String? cardLast4,
+    String? accountId,
   }) => _repository.addTransaction(
     Transaction(
       id: _uuid.v4(),
@@ -30,6 +31,7 @@ class AddExpense {
       notes: notes,
       cardId: cardId,
       cardLast4: cardLast4,
+      accountId: accountId,
       createdAt: DateTime.now(),
     ),
   );

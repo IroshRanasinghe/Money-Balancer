@@ -16,6 +16,7 @@ class AddIncome {
     required String category,
     required DateTime date,
     String? notes,
+    String? accountId,
   }) => _repository.addTransaction(
     Transaction(
       id: _uuid.v4(),
@@ -24,6 +25,7 @@ class AddIncome {
       date: date,
       type: TransactionType.income,
       notes: notes,
+      accountId: accountId,
       createdAt: DateTime.now(),
     ),
   );

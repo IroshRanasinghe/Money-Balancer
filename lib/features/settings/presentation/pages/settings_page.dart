@@ -62,11 +62,22 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.credit_card),
-                      title: const Text('My cards'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.push(AppRoutes.cards),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.account_balance_wallet),
+                          title: const Text('Accounts'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push(AppRoutes.accounts),
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.credit_card),
+                          title: const Text('My cards'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push(AppRoutes.cards),
+                        ),
+                      ],
                     ),
                   ),
                 ],
