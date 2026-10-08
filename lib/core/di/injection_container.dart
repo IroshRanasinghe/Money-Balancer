@@ -6,6 +6,7 @@ import '../../features/cards/cards_injection.dart';
 import '../../features/dashboard/dashboard_injection.dart';
 import '../../features/expense/expense_injection.dart';
 import '../../features/income/income_injection.dart';
+import '../../features/recurring/recurring_injection.dart';
 import '../../features/reports/reports_injection.dart';
 import '../../features/settings/settings_injection.dart';
 import '../../features/transactions/transactions_injection.dart';
@@ -21,6 +22,7 @@ Future<void> initDependencies() async {
   registerTransactions(sl);
   registerCards(sl);
   registerAccounts(sl);
+  registerRecurring(sl);
 
   // Features
   registerExpense(sl);

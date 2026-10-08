@@ -77,6 +77,13 @@ class SettingsPage extends StatelessWidget {
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => context.push(AppRoutes.cards),
                         ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.event_repeat),
+                          title: const Text('Recurring'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push(AppRoutes.recurring),
+                        ),
                       ],
                     ),
                   ),

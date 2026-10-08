@@ -17,6 +17,7 @@ class TransactionModel {
     this.cardId,
     this.cardLast4,
     this.accountId,
+    this.recurringId,
     required this.createdAt,
   });
 
@@ -34,6 +35,7 @@ class TransactionModel {
         cardId: t.cardId,
         cardLast4: t.cardLast4,
         accountId: t.accountId,
+        recurringId: t.recurringId,
         createdAt: t.createdAt,
       );
 
@@ -47,6 +49,7 @@ class TransactionModel {
   final String? cardId;
   final String? cardLast4;
   final String? accountId;
+  final String? recurringId;
   final DateTime createdAt;
 
   Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
@@ -62,6 +65,7 @@ class TransactionModel {
         cardId: cardId,
         cardLast4: cardLast4,
         accountId: accountId,
+        recurringId: recurringId,
         createdAt: createdAt,
       );
 }

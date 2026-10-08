@@ -17,6 +17,7 @@ abstract class Transaction with _$Transaction {
     String? cardId,
     String? cardLast4,
     String? accountId,
+    String? recurringId,
     required DateTime createdAt,
   }) = _Transaction;
 }

@@ -40,7 +40,20 @@ class TransactionTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(dateLine),
+          if (t.recurringId != null)
+            Row(
+              children: [
+                Icon(
+                  Icons.repeat,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Flexible(child: Text(dateLine)),
+              ],
+            )
+          else
+            Text(dateLine),
           if (notes != null && notes.isNotEmpty)
             Text(notes, maxLines: 1, overflow: TextOverflow.ellipsis),
         ],

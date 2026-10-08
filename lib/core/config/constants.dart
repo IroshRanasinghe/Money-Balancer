@@ -9,6 +9,7 @@ class AppRoutes {
   static const cards = '/cards';
   static const accounts = '/accounts';
   static const accountDetail = '/accounts/detail';
+  static const recurring = '/recurring';
   static const addExpense = '/expense/add';
   static const editExpense = '/expense/edit';
   static const addIncome = '/income/add';
@@ -24,6 +25,7 @@ class HiveBoxes {
   static const cards = 'cards';
   static const accounts = 'accounts';
   static const transfers = 'transfers';
+  static const recurring = 'recurring_rules';
 }
 
 class HiveTypeIds {
@@ -35,6 +37,7 @@ class HiveTypeIds {
   static const card = 3;
   static const account = 4;
   static const transfer = 5;
+  static const recurring = 6;
 }
 
 class AppCategories {
