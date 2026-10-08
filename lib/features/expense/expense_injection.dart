@@ -10,6 +10,6 @@ void registerExpense(GetIt sl) {
   sl.registerFactory(() => AddExpense(sl(), const Uuid()));
   // BLoCs
   sl.registerFactoryParam<ExpenseBloc, Transaction?, void>(
-    (initial, _) => ExpenseBloc(sl(), sl(), sl(), initial: initial),
+    (initial, _) => ExpenseBloc(sl(), sl(), sl(), sl(), initial: initial),
   );
 }

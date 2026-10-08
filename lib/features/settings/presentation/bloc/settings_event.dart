@@ -24,3 +24,10 @@ class DarkModeToggled extends SettingsEvent {
   @override
   List<Object?> get props => [enabled];
 }
+
+class BudgetAlertsToggled extends SettingsEvent {
+  const BudgetAlertsToggled(this.enabled);
+  final bool enabled;
+  @override
+  List<Object?> get props => [enabled];
+}

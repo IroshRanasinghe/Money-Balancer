@@ -6,6 +6,7 @@ import '../accounts/data/models/account_model.dart';
 import '../accounts/data/models/transfer_model.dart';
 import '../budget/data/models/budget_model.dart';
 import '../cards/data/models/card_model.dart';
+import '../goals/data/models/goal_model.dart';
 import '../recurring/data/models/recurring_rule_model.dart';
 import '../settings/data/models/app_settings_model.dart';
 import '../transactions/data/models/transaction_model.dart';
@@ -29,6 +30,7 @@ void registerBackup(GetIt sl) {
             Hive.box<AccountModel>(HiveBoxes.accounts),
             Hive.box<TransferModel>(HiveBoxes.transfers),
             Hive.box<RecurringRuleModel>(HiveBoxes.recurring),
+            Hive.box<GoalModel>(HiveBoxes.goals),
             sl(),
           ));
   sl.registerLazySingleton<BackupFileDataSource>(

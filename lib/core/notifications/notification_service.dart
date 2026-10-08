@@ -1,0 +1,36 @@
+import '../error/exceptions.dart';
+
+/// Local notifications. Infrastructure, not a feature: implementations throw
+/// [NotificationException]; use cases map it to a failure.
+abstract class NotificationService {
+  /// Prepares the platform plugin. Safe to call once at startup.
+  Future<void> init();
+
+  /// Asks the OS for permission to show notifications. Returns whether it is
+  /// granted. Call only in response to a user action.
+  Future<bool> requestPermission();
+
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+  });
+}
+
+/// Used on web and other unsupported platforms: every call is a silent no-op.
+class NoopNotificationService implements NotificationService {
+  const NoopNotificationService();
+
+  @override
+  Future<void> init() async {}
+
+  @override
+  Future<bool> requestPermission() async => false;
+
+  @override
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+  }) async {}
+}

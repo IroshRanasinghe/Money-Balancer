@@ -8,5 +8,6 @@ abstract class AppSettings with _$AppSettings {
     @Default('USD') String currency,
     @Default(false) bool darkMode,
     @Default('en') String language,
+    @Default(true) bool budgetAlertsEnabled,
   }) = _AppSettings;
 }

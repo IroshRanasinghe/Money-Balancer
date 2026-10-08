@@ -6,6 +6,7 @@ import '../../features/budget/budget_injection.dart';
 import '../../features/cards/cards_injection.dart';
 import '../../features/dashboard/dashboard_injection.dart';
 import '../../features/expense/expense_injection.dart';
+import '../../features/goals/goals_injection.dart';
 import '../../features/income/income_injection.dart';
 import '../../features/premium/premium_injection.dart';
 import '../../features/recurring/recurring_injection.dart';
@@ -13,6 +14,7 @@ import '../../features/reports/reports_injection.dart';
 import '../../features/settings/settings_injection.dart';
 import '../../features/transactions/transactions_injection.dart';
 import '../hive/hive_setup.dart';
+import '../notifications/notifications_injection.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -20,12 +22,14 @@ Future<void> initDependencies() async {
   await HiveSetup.init();
 
   // Shared data (other features depend on these repositories)
+  await registerNotifications(sl);
   registerSettings(sl);
   await registerPremium(sl);
   registerTransactions(sl);
   registerCards(sl);
   registerAccounts(sl);
   registerRecurring(sl);
+  registerGoals(sl);
 
   // Features
   registerExpense(sl);

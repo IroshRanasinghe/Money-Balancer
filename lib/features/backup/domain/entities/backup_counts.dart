@@ -11,5 +11,6 @@ abstract class BackupCounts with _$BackupCounts {
     required int accounts,
     required int transfers,
     required int recurringRules,
+    required int goals,
   }) = _BackupCounts;
 }

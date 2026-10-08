@@ -35,3 +35,8 @@ class StoreUnavailableException extends AppException {
 class PurchaseException extends AppException {
   const PurchaseException(super.message);
 }
+
+class NotificationException extends AppException {
+  const NotificationException(
+      [super.message = "Couldn't show the notification."]);
+}

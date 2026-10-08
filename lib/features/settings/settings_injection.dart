@@ -8,6 +8,7 @@ import 'data/repositories/settings_repository_impl.dart';
 import 'domain/entities/app_settings.dart';
 import 'domain/repositories/settings_repository.dart';
 import 'domain/usecases/get_settings.dart';
+import 'domain/usecases/request_notification_permission.dart';
 import 'domain/usecases/save_settings.dart';
 import 'presentation/bloc/settings_bloc.dart';
 
@@ -20,7 +21,8 @@ void registerSettings(GetIt sl) {
   // Use cases
   sl.registerFactory(() => GetSettings(sl()));
   sl.registerFactory(() => SaveSettings(sl()));
+  sl.registerFactory(() => RequestNotificationPermission(sl()));
   // BLoCs
   sl.registerFactoryParam<SettingsBloc, AppSettings?, void>((s, _) =>
-      SettingsBloc(sl(), sl(), initialSettings: s ?? const AppSettings()));
+      SettingsBloc(sl(), sl(), sl(), initialSettings: s ?? const AppSettings()));
 }

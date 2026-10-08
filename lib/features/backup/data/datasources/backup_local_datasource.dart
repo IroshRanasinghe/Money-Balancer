@@ -6,6 +6,7 @@ import '../../../accounts/data/models/transfer_model.dart';
 import '../../../budget/data/models/budget_model.dart';
 import '../../../cards/data/datasources/card_number_secure_datasource.dart';
 import '../../../cards/data/models/card_model.dart';
+import '../../../goals/data/models/goal_model.dart';
 import '../../../recurring/data/models/recurring_rule_model.dart';
 import '../../../settings/data/datasources/settings_local_datasource.dart';
 import '../../../settings/data/models/app_settings_model.dart';
@@ -32,6 +33,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
     this._accounts,
     this._transfers,
     this._recurring,
+    this._goals,
     this._cardNumbers,
   );
 
@@ -42,6 +44,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
   final Box<AccountModel> _accounts;
   final Box<TransferModel> _transfers;
   final Box<RecurringRuleModel> _recurring;
+  final Box<GoalModel> _goals;
   final CardNumberSecureDataSource _cardNumbers;
 
   @override
@@ -59,6 +62,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
         'accounts': _accounts.values.map((m) => m.toJson()).toList(),
         'transfers': _transfers.values.map((m) => m.toJson()).toList(),
         'recurringRules': _recurring.values.map((m) => m.toJson()).toList(),
+        'goals': _goals.values.map((m) => m.toJson()).toList(),
       };
     } catch (e) {
       throw CacheException('Failed to read data for backup: $e');
@@ -87,6 +91,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
     final List<AccountModel> accounts;
     final List<TransferModel> transfers;
     final List<RecurringRuleModel> rules;
+    final List<GoalModel> goals;
     try {
       final rawSettings = data['settings'];
       settings = rawSettings == null
@@ -99,6 +104,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
       accounts = _parse(data, 'accounts', AccountModel.fromJson);
       transfers = _parse(data, 'transfers', TransferModel.fromJson);
       rules = _parse(data, 'recurringRules', RecurringRuleModel.fromJson);
+      goals = _parse(data, 'goals', GoalModel.fromJson);
     } catch (_) {
       throw const InvalidBackupException(_damaged);
     }
@@ -109,6 +115,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
     final accountMap = {for (final m in accounts) m.id: m};
     final transferMap = {for (final m in transfers) m.id: m};
     final ruleMap = {for (final m in rules) m.id: m};
+    final goalMap = {for (final m in goals) m.id: m};
 
     final oldCardIds = _cards.keys.map((k) => k.toString()).toList();
     final snapshot = _Snapshot(
@@ -118,6 +125,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
       accounts: Map<dynamic, AccountModel>.of(_accounts.toMap()),
       transfers: Map<dynamic, TransferModel>.of(_transfers.toMap()),
       rules: Map<dynamic, RecurringRuleModel>.of(_recurring.toMap()),
+      goals: Map<dynamic, GoalModel>.of(_goals.toMap()),
       settings: _settings.get(HiveSettingsLocalDataSource.settingsKey),
     );
     try {
@@ -127,6 +135,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
       await _replace(_accounts, accountMap);
       await _replace(_transfers, transferMap);
       await _replace(_recurring, ruleMap);
+      await _replace(_goals, goalMap);
       if (settings != null) {
         await _settings.put(HiveSettingsLocalDataSource.settingsKey, settings);
       }
@@ -150,6 +159,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
       accounts: accountMap.length,
       transfers: transferMap.length,
       recurringRules: ruleMap.length,
+      goals: goalMap.length,
     );
   }
 
@@ -176,6 +186,7 @@ class HiveBackupLocalDataSource implements BackupLocalDataSource {
     await restore(_accounts, s.accounts);
     await restore(_transfers, s.transfers);
     await restore(_recurring, s.rules);
+    await restore(_goals, s.goals);
     final settings = s.settings;
     if (settings != null) {
       try {
@@ -198,6 +209,7 @@ class _Snapshot {
     required this.accounts,
     required this.transfers,
     required this.rules,
+    required this.goals,
     required this.settings,
   });
 
@@ -207,5 +219,6 @@ class _Snapshot {
   final Map<dynamic, AccountModel> accounts;
   final Map<dynamic, TransferModel> transfers;
   final Map<dynamic, RecurringRuleModel> rules;
+  final Map<dynamic, GoalModel> goals;
   final AppSettingsModel? settings;
 }

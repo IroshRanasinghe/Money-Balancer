@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../budget/domain/usecases/check_budget_alerts.dart';
 import '../../domain/entities/recurring_rule.dart';
 import '../../domain/usecases/delete_recurring_rule.dart';
 import '../../domain/usecases/get_recurring_rules.dart';
@@ -21,6 +22,7 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
     this._saveRule,
     this._deleteRule,
     this._processDue,
+    this._checkBudgetAlerts,
     this._uuid,
   ) : super(const RecurringState()) {
     on<RecurringLoadRequested>((e, emit) => _onLoad(emit));
@@ -33,6 +35,7 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
   final SaveRecurringRule _saveRule;
   final DeleteRecurringRule _deleteRule;
   final ProcessDueRecurring _processDue;
+  final CheckBudgetAlerts _checkBudgetAlerts;
   final Uuid _uuid;
 
   Future<void> _onLoad(Emitter<RecurringState> emit) async {
@@ -62,6 +65,7 @@ class RecurringBloc extends Bloc<RecurringEvent, RecurringState> {
   /// Generates anything now due, reports how many were added, then reloads.
   Future<void> _processAndReload(Emitter<RecurringState> emit) async {
     final processed = await _processDue(DateTime.now());
+    await _checkBudgetAlerts(DateTime.now());
     processed.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
       (n) {

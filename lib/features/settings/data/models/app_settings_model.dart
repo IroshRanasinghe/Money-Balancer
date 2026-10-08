@@ -10,6 +10,7 @@ class AppSettingsModel {
     required this.currency,
     required this.darkMode,
     required this.language,
+    this.budgetAlertsEnabled = true,
   });
 
   factory AppSettingsModel.fromJson(Map<String, dynamic> json) =>
@@ -19,14 +20,22 @@ class AppSettingsModel {
         currency: settings.currency,
         darkMode: settings.darkMode,
         language: settings.language,
+        budgetAlertsEnabled: settings.budgetAlertsEnabled,
       );
 
   final String currency;
   final bool darkMode;
   final String language;
 
+  @JsonKey(defaultValue: true)
+  final bool budgetAlertsEnabled;
+
   Map<String, dynamic> toJson() => _$AppSettingsModelToJson(this);
 
-  AppSettings toEntity() =>
-      AppSettings(currency: currency, darkMode: darkMode, language: language);
+  AppSettings toEntity() => AppSettings(
+        currency: currency,
+        darkMode: darkMode,
+        language: language,
+        budgetAlertsEnabled: budgetAlertsEnabled,
+      );
 }

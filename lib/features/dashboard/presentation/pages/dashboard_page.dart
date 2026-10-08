@@ -7,6 +7,8 @@ import '../../../../core/config/theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/transaction_tile.dart';
+import '../../../goals/presentation/bloc/goals_bloc.dart';
+import '../../../goals/presentation/widgets/goal_card.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../domain/entities/dashboard_summary.dart';
@@ -81,6 +83,7 @@ class _Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<DashboardBloc>();
+    final goalsBloc = context.read<GoalsBloc>();
     final theme = Theme.of(context);
     final currency =
         context.select((SettingsBloc b) => b.state.settings.currency);
@@ -88,6 +91,7 @@ class _Content extends StatelessWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
+        goalsBloc.add(const GoalsLoadRequested());
         bloc.add(const DashboardLoadRequested());
         await bloc.stream.firstWhere(
           (s) => s.status != DashboardStatus.loading,
@@ -145,6 +149,8 @@ class _Content extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
+          const _GoalsSection(),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
@@ -187,6 +193,71 @@ class _Content extends StatelessWidget {
               ),
         ],
       ),
+    );
+  }
+}
+
+class _GoalsSection extends StatelessWidget {
+  const _GoalsSection();
+
+  Future<void> _openGoals(BuildContext context) async {
+    final bloc = context.read<GoalsBloc>();
+    await context.push(AppRoutes.goals);
+    if (context.mounted) bloc.add(const GoalsLoadRequested());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final currency =
+        context.select((SettingsBloc b) => b.state.settings.currency);
+    return BlocBuilder<GoalsBloc, GoalsState>(
+      builder: (context, state) {
+        final incomplete =
+            state.goals.where((g) => !g.isCompleted).take(2).toList();
+        final empty =
+            state.goals.isEmpty && state.status == GoalsStatus.success;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Savings goals',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => _openGoals(context),
+                  child: const Text('See all'),
+                ),
+              ],
+            ),
+            if (empty)
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  leading: const Icon(Icons.flag_outlined),
+                  title: const Text('Start a savings goal'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openGoals(context),
+                ),
+              )
+            else
+              for (final goal in incomplete)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: GoalCard(
+                    goal: goal,
+                    currencyCode: currency,
+                    onTap: () => _openGoals(context),
+                  ),
+                ),
+          ],
+        );
+      },
     );
   }
 }

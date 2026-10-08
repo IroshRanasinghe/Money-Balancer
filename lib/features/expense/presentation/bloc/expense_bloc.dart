@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/form_submission_status.dart';
+import '../../../budget/domain/usecases/check_budget_alerts.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/domain/usecases/delete_transaction.dart';
 import '../../../transactions/domain/usecases/update_transaction.dart';
@@ -18,7 +19,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   ExpenseBloc(
     this._addExpense,
     this._updateTransaction,
-    this._deleteTransaction, {
+    this._deleteTransaction,
+    this._checkBudgetAlerts, {
     this.initial,
   }) : super(const ExpenseState()) {
     on<ExpenseSubmitted>(_onSubmitted);
@@ -28,6 +30,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   final AddExpense _addExpense;
   final UpdateTransaction _updateTransaction;
   final DeleteTransaction _deleteTransaction;
+  final CheckBudgetAlerts _checkBudgetAlerts;
   final Transaction? initial;
 
   Future<void> _onSubmitted(
@@ -87,6 +90,10 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               accountId: data.accountId,
             ),
           );
+    if (result.isRight()) {
+      // Awaited so the bloc never emits after close; the result is ignored.
+      await _checkBudgetAlerts(data.date);
+    }
     _emitResult(result, emit);
   }
 

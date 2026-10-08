@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings.dart';
+import '../../domain/usecases/request_notification_permission.dart';
 import '../../domain/usecases/save_settings.dart';
 import 'settings_event.dart';
 import 'settings_state.dart';
@@ -12,7 +13,8 @@ export 'settings_state.dart';
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc(
     this._getSettings,
-    this._saveSettings, {
+    this._saveSettings,
+    this._requestNotificationPermission, {
     AppSettings initialSettings = const AppSettings(),
   }) : super(SettingsState(settings: initialSettings)) {
     on<SettingsLoadRequested>(_onLoad);
@@ -20,10 +22,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         (e, emit) => _save(state.settings.copyWith(currency: e.currency), emit));
     on<DarkModeToggled>(
         (e, emit) => _save(state.settings.copyWith(darkMode: e.enabled), emit));
+    on<BudgetAlertsToggled>(_onBudgetAlertsToggled);
   }
 
   final GetSettings _getSettings;
   final SaveSettings _saveSettings;
+  final RequestNotificationPermission _requestNotificationPermission;
 
   Future<void> _onLoad(
       SettingsLoadRequested event, Emitter<SettingsState> emit) async {
@@ -32,6 +36,25 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
       (settings) => emit(SettingsState(settings: settings)),
     );
+  }
+
+  /// Switching on first asks the OS for notification permission; when it is
+  /// denied the setting stays off.
+  Future<void> _onBudgetAlertsToggled(
+      BudgetAlertsToggled event, Emitter<SettingsState> emit) async {
+    if (event.enabled) {
+      final granted = (await _requestNotificationPermission())
+          .getOrElse(() => false);
+      if (!granted) {
+        emit(state.copyWith(errorMessage: null));
+        emit(state.copyWith(
+            errorMessage:
+                'Allow notifications in system settings to get budget alerts.'));
+        return;
+      }
+    }
+    await _save(
+        state.settings.copyWith(budgetAlertsEnabled: event.enabled), emit);
   }
 
   Future<void> _save(AppSettings updated, Emitter<SettingsState> emit) async {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/constants.dart';
 import '../../../../core/config/theme.dart';
+import '../../../../core/premium/premium_feature.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/premium_gate.dart';
 import '../../../backup/presentation/bloc/backup_bloc.dart';
@@ -79,6 +80,7 @@ class SettingsPage extends StatelessWidget {
                           value: state.settings.darkMode,
                           onChanged: (value) => bloc.add(DarkModeToggled(value)),
                         ),
+                        const _BudgetAlertsTile(),
                       ],
                     ),
                   ),
@@ -145,6 +147,38 @@ class _PremiumCard extends StatelessWidget {
           );
         },
       );
+}
+
+class _BudgetAlertsTile extends StatelessWidget {
+  const _BudgetAlertsTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final isPremium =
+        context.select((PremiumBloc b) => b.state.status.isPremium);
+    final enabled = context
+        .select((SettingsBloc b) => b.state.settings.budgetAlertsEnabled);
+    return SwitchListTile(
+      title: Row(
+        children: [
+          const Flexible(child: Text('Budget alerts')),
+          if (!isPremium) ...[
+            const SizedBox(width: 8),
+            const _ProChip(),
+          ],
+        ],
+      ),
+      subtitle: const Text('Notify me at 80% and 100% of a budget'),
+      value: isPremium && enabled,
+      onChanged: (value) {
+        if (!isPremium) {
+          openPaywall(context, PremiumFeature.budgetAlerts);
+          return;
+        }
+        context.read<SettingsBloc>().add(BudgetAlertsToggled(value));
+      },
+    );
+  }
 }
 
 class _ProChip extends StatelessWidget {

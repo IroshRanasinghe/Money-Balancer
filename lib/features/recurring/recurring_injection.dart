@@ -31,6 +31,6 @@ void registerRecurring(GetIt sl) {
   sl.registerFactory(() => ProcessDueRecurring(sl(), sl()));
   // BLoCs
   sl.registerFactory(
-    () => RecurringBloc(sl(), sl(), sl(), sl(), const Uuid()),
+    () => RecurringBloc(sl(), sl(), sl(), sl(), sl(), const Uuid()),
   );
 }

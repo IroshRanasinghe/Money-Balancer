@@ -58,3 +58,7 @@ class StoreUnavailableFailure extends Failure {
 class PurchaseFailure extends Failure {
   const PurchaseFailure(super.message);
 }
+
+class NotificationFailure extends Failure {
+  const NotificationFailure([super.message = "Couldn't show the notification."]);
+}

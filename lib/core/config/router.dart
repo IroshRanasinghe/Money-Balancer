@@ -5,6 +5,7 @@ import '../../features/budget/budget_routes.dart';
 import '../../features/cards/cards_routes.dart';
 import '../../features/dashboard/dashboard_routes.dart';
 import '../../features/expense/expense_routes.dart';
+import '../../features/goals/goals_routes.dart';
 import '../../features/income/income_routes.dart';
 import '../../features/premium/premium_routes.dart';
 import '../../features/recurring/recurring_routes.dart';
@@ -47,6 +48,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
         path: AppRoutes.accountDetail, builder: accountDetailRouteBuilder),
     GoRoute(path: AppRoutes.recurring, builder: recurringRouteBuilder),
+    GoRoute(path: AppRoutes.goals, builder: goalsRouteBuilder),
     GoRoute(path: AppRoutes.premium, builder: premiumRouteBuilder),
     GoRoute(path: AppRoutes.addExpense, builder: addExpenseRouteBuilder),
     GoRoute(path: AppRoutes.editExpense, builder: editExpenseRouteBuilder),

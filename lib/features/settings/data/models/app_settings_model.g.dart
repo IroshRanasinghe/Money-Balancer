@@ -11,6 +11,7 @@ AppSettingsModel _$AppSettingsModelFromJson(Map<String, dynamic> json) =>
       currency: json['currency'] as String,
       darkMode: json['darkMode'] as bool,
       language: json['language'] as String,
+      budgetAlertsEnabled: json['budgetAlertsEnabled'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$AppSettingsModelToJson(AppSettingsModel instance) =>
@@ -18,4 +19,5 @@ Map<String, dynamic> _$AppSettingsModelToJson(AppSettingsModel instance) =>
       'currency': instance.currency,
       'darkMode': instance.darkMode,
       'language': instance.language,
+      'budgetAlertsEnabled': instance.budgetAlertsEnabled,
     };

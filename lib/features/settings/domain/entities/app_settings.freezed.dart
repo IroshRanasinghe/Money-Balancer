@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppSettings {
 
- String get currency; bool get darkMode; String get language;
+ String get currency; bool get darkMode; String get language; bool get budgetAlertsEnabled;
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $AppSettingsCopyWith<AppSettings> get copyWith => _$AppSettingsCopyWithImpl<AppS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.darkMode, darkMode) || other.darkMode == darkMode)&&(identical(other.language, language) || other.language == language));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.darkMode, darkMode) || other.darkMode == darkMode)&&(identical(other.language, language) || other.language == language)&&(identical(other.budgetAlertsEnabled, budgetAlertsEnabled) || other.budgetAlertsEnabled == budgetAlertsEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,currency,darkMode,language);
+int get hashCode => Object.hash(runtimeType,currency,darkMode,language,budgetAlertsEnabled);
 
 @override
 String toString() {
-  return 'AppSettings(currency: $currency, darkMode: $darkMode, language: $language)';
+  return 'AppSettings(currency: $currency, darkMode: $darkMode, language: $language, budgetAlertsEnabled: $budgetAlertsEnabled)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $AppSettingsCopyWith<$Res>  {
   factory $AppSettingsCopyWith(AppSettings value, $Res Function(AppSettings) _then) = _$AppSettingsCopyWithImpl;
 @useResult
 $Res call({
- String currency, bool darkMode, String language
+ String currency, bool darkMode, String language, bool budgetAlertsEnabled
 });
 
 
@@ -62,12 +62,13 @@ class _$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? currency = null,Object? darkMode = null,Object? language = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? currency = null,Object? darkMode = null,Object? language = null,Object? budgetAlertsEnabled = null,}) {
   return _then(_self.copyWith(
 currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
 as String,darkMode: null == darkMode ? _self.darkMode : darkMode // ignore: cast_nullable_to_non_nullable
 as bool,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
-as String,
+as String,budgetAlertsEnabled: null == budgetAlertsEnabled ? _self.budgetAlertsEnabled : budgetAlertsEnabled // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -152,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String currency,  bool darkMode,  String language)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String currency,  bool darkMode,  String language,  bool budgetAlertsEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.currency,_that.darkMode,_that.language);case _:
+return $default(_that.currency,_that.darkMode,_that.language,_that.budgetAlertsEnabled);case _:
   return orElse();
 
 }
@@ -173,10 +174,10 @@ return $default(_that.currency,_that.darkMode,_that.language);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String currency,  bool darkMode,  String language)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String currency,  bool darkMode,  String language,  bool budgetAlertsEnabled)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings():
-return $default(_that.currency,_that.darkMode,_that.language);case _:
+return $default(_that.currency,_that.darkMode,_that.language,_that.budgetAlertsEnabled);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +194,10 @@ return $default(_that.currency,_that.darkMode,_that.language);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String currency,  bool darkMode,  String language)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String currency,  bool darkMode,  String language,  bool budgetAlertsEnabled)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.currency,_that.darkMode,_that.language);case _:
+return $default(_that.currency,_that.darkMode,_that.language,_that.budgetAlertsEnabled);case _:
   return null;
 
 }
@@ -208,12 +209,13 @@ return $default(_that.currency,_that.darkMode,_that.language);case _:
 
 
 class _AppSettings implements AppSettings {
-  const _AppSettings({this.currency = 'USD', this.darkMode = false, this.language = 'en'});
+  const _AppSettings({this.currency = 'USD', this.darkMode = false, this.language = 'en', this.budgetAlertsEnabled = true});
   
 
 @override@JsonKey() final  String currency;
 @override@JsonKey() final  bool darkMode;
 @override@JsonKey() final  String language;
+@override@JsonKey() final  bool budgetAlertsEnabled;
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +227,16 @@ _$AppSettingsCopyWith<_AppSettings> get copyWith => __$AppSettingsCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.darkMode, darkMode) || other.darkMode == darkMode)&&(identical(other.language, language) || other.language == language));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.darkMode, darkMode) || other.darkMode == darkMode)&&(identical(other.language, language) || other.language == language)&&(identical(other.budgetAlertsEnabled, budgetAlertsEnabled) || other.budgetAlertsEnabled == budgetAlertsEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,currency,darkMode,language);
+int get hashCode => Object.hash(runtimeType,currency,darkMode,language,budgetAlertsEnabled);
 
 @override
 String toString() {
-  return 'AppSettings(currency: $currency, darkMode: $darkMode, language: $language)';
+  return 'AppSettings(currency: $currency, darkMode: $darkMode, language: $language, budgetAlertsEnabled: $budgetAlertsEnabled)';
 }
 
 
@@ -245,7 +247,7 @@ abstract mixin class _$AppSettingsCopyWith<$Res> implements $AppSettingsCopyWith
   factory _$AppSettingsCopyWith(_AppSettings value, $Res Function(_AppSettings) _then) = __$AppSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- String currency, bool darkMode, String language
+ String currency, bool darkMode, String language, bool budgetAlertsEnabled
 });
 
 
@@ -262,12 +264,13 @@ class __$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? currency = null,Object? darkMode = null,Object? language = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? currency = null,Object? darkMode = null,Object? language = null,Object? budgetAlertsEnabled = null,}) {
   return _then(_AppSettings(
 currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
 as String,darkMode: null == darkMode ? _self.darkMode : darkMode // ignore: cast_nullable_to_non_nullable
 as bool,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
-as String,
+as String,budgetAlertsEnabled: null == budgetAlertsEnabled ? _self.budgetAlertsEnabled : budgetAlertsEnabled // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

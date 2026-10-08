@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BackupCounts {
 
- int get transactions; int get budgets; int get cards; int get accounts; int get transfers; int get recurringRules;
+ int get transactions; int get budgets; int get cards; int get accounts; int get transfers; int get recurringRules; int get goals;
 /// Create a copy of BackupCounts
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $BackupCountsCopyWith<BackupCounts> get copyWith => _$BackupCountsCopyWithImpl<B
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BackupCounts&&(identical(other.transactions, transactions) || other.transactions == transactions)&&(identical(other.budgets, budgets) || other.budgets == budgets)&&(identical(other.cards, cards) || other.cards == cards)&&(identical(other.accounts, accounts) || other.accounts == accounts)&&(identical(other.transfers, transfers) || other.transfers == transfers)&&(identical(other.recurringRules, recurringRules) || other.recurringRules == recurringRules));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BackupCounts&&(identical(other.transactions, transactions) || other.transactions == transactions)&&(identical(other.budgets, budgets) || other.budgets == budgets)&&(identical(other.cards, cards) || other.cards == cards)&&(identical(other.accounts, accounts) || other.accounts == accounts)&&(identical(other.transfers, transfers) || other.transfers == transfers)&&(identical(other.recurringRules, recurringRules) || other.recurringRules == recurringRules)&&(identical(other.goals, goals) || other.goals == goals));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,transactions,budgets,cards,accounts,transfers,recurringRules);
+int get hashCode => Object.hash(runtimeType,transactions,budgets,cards,accounts,transfers,recurringRules,goals);
 
 @override
 String toString() {
-  return 'BackupCounts(transactions: $transactions, budgets: $budgets, cards: $cards, accounts: $accounts, transfers: $transfers, recurringRules: $recurringRules)';
+  return 'BackupCounts(transactions: $transactions, budgets: $budgets, cards: $cards, accounts: $accounts, transfers: $transfers, recurringRules: $recurringRules, goals: $goals)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $BackupCountsCopyWith<$Res>  {
   factory $BackupCountsCopyWith(BackupCounts value, $Res Function(BackupCounts) _then) = _$BackupCountsCopyWithImpl;
 @useResult
 $Res call({
- int transactions, int budgets, int cards, int accounts, int transfers, int recurringRules
+ int transactions, int budgets, int cards, int accounts, int transfers, int recurringRules, int goals
 });
 
 
@@ -62,7 +62,7 @@ class _$BackupCountsCopyWithImpl<$Res>
 
 /// Create a copy of BackupCounts
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transactions = null,Object? budgets = null,Object? cards = null,Object? accounts = null,Object? transfers = null,Object? recurringRules = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? transactions = null,Object? budgets = null,Object? cards = null,Object? accounts = null,Object? transfers = null,Object? recurringRules = null,Object? goals = null,}) {
   return _then(_self.copyWith(
 transactions: null == transactions ? _self.transactions : transactions // ignore: cast_nullable_to_non_nullable
 as int,budgets: null == budgets ? _self.budgets : budgets // ignore: cast_nullable_to_non_nullable
@@ -70,6 +70,7 @@ as int,cards: null == cards ? _self.cards : cards // ignore: cast_nullable_to_no
 as int,accounts: null == accounts ? _self.accounts : accounts // ignore: cast_nullable_to_non_nullable
 as int,transfers: null == transfers ? _self.transfers : transfers // ignore: cast_nullable_to_non_nullable
 as int,recurringRules: null == recurringRules ? _self.recurringRules : recurringRules // ignore: cast_nullable_to_non_nullable
+as int,goals: null == goals ? _self.goals : goals // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int transactions,  int budgets,  int cards,  int accounts,  int transfers,  int recurringRules)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int transactions,  int budgets,  int cards,  int accounts,  int transfers,  int recurringRules,  int goals)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BackupCounts() when $default != null:
-return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_that.transfers,_that.recurringRules);case _:
+return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_that.transfers,_that.recurringRules,_that.goals);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int transactions,  int budgets,  int cards,  int accounts,  int transfers,  int recurringRules)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int transactions,  int budgets,  int cards,  int accounts,  int transfers,  int recurringRules,  int goals)  $default,) {final _that = this;
 switch (_that) {
 case _BackupCounts():
-return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_that.transfers,_that.recurringRules);case _:
+return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_that.transfers,_that.recurringRules,_that.goals);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int transactions,  int budgets,  int cards,  int accounts,  int transfers,  int recurringRules)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int transactions,  int budgets,  int cards,  int accounts,  int transfers,  int recurringRules,  int goals)?  $default,) {final _that = this;
 switch (_that) {
 case _BackupCounts() when $default != null:
-return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_that.transfers,_that.recurringRules);case _:
+return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_that.transfers,_that.recurringRules,_that.goals);case _:
   return null;
 
 }
@@ -211,7 +212,7 @@ return $default(_that.transactions,_that.budgets,_that.cards,_that.accounts,_tha
 
 
 class _BackupCounts implements BackupCounts {
-  const _BackupCounts({required this.transactions, required this.budgets, required this.cards, required this.accounts, required this.transfers, required this.recurringRules});
+  const _BackupCounts({required this.transactions, required this.budgets, required this.cards, required this.accounts, required this.transfers, required this.recurringRules, required this.goals});
   
 
 @override final  int transactions;
@@ -220,6 +221,7 @@ class _BackupCounts implements BackupCounts {
 @override final  int accounts;
 @override final  int transfers;
 @override final  int recurringRules;
+@override final  int goals;
 
 /// Create a copy of BackupCounts
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +233,16 @@ _$BackupCountsCopyWith<_BackupCounts> get copyWith => __$BackupCountsCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BackupCounts&&(identical(other.transactions, transactions) || other.transactions == transactions)&&(identical(other.budgets, budgets) || other.budgets == budgets)&&(identical(other.cards, cards) || other.cards == cards)&&(identical(other.accounts, accounts) || other.accounts == accounts)&&(identical(other.transfers, transfers) || other.transfers == transfers)&&(identical(other.recurringRules, recurringRules) || other.recurringRules == recurringRules));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BackupCounts&&(identical(other.transactions, transactions) || other.transactions == transactions)&&(identical(other.budgets, budgets) || other.budgets == budgets)&&(identical(other.cards, cards) || other.cards == cards)&&(identical(other.accounts, accounts) || other.accounts == accounts)&&(identical(other.transfers, transfers) || other.transfers == transfers)&&(identical(other.recurringRules, recurringRules) || other.recurringRules == recurringRules)&&(identical(other.goals, goals) || other.goals == goals));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,transactions,budgets,cards,accounts,transfers,recurringRules);
+int get hashCode => Object.hash(runtimeType,transactions,budgets,cards,accounts,transfers,recurringRules,goals);
 
 @override
 String toString() {
-  return 'BackupCounts(transactions: $transactions, budgets: $budgets, cards: $cards, accounts: $accounts, transfers: $transfers, recurringRules: $recurringRules)';
+  return 'BackupCounts(transactions: $transactions, budgets: $budgets, cards: $cards, accounts: $accounts, transfers: $transfers, recurringRules: $recurringRules, goals: $goals)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$BackupCountsCopyWith<$Res> implements $BackupCountsCopyWi
   factory _$BackupCountsCopyWith(_BackupCounts value, $Res Function(_BackupCounts) _then) = __$BackupCountsCopyWithImpl;
 @override @useResult
 $Res call({
- int transactions, int budgets, int cards, int accounts, int transfers, int recurringRules
+ int transactions, int budgets, int cards, int accounts, int transfers, int recurringRules, int goals
 });
 
 
@@ -268,7 +270,7 @@ class __$BackupCountsCopyWithImpl<$Res>
 
 /// Create a copy of BackupCounts
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transactions = null,Object? budgets = null,Object? cards = null,Object? accounts = null,Object? transfers = null,Object? recurringRules = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? transactions = null,Object? budgets = null,Object? cards = null,Object? accounts = null,Object? transfers = null,Object? recurringRules = null,Object? goals = null,}) {
   return _then(_BackupCounts(
 transactions: null == transactions ? _self.transactions : transactions // ignore: cast_nullable_to_non_nullable
 as int,budgets: null == budgets ? _self.budgets : budgets // ignore: cast_nullable_to_non_nullable
@@ -276,6 +278,7 @@ as int,cards: null == cards ? _self.cards : cards // ignore: cast_nullable_to_no
 as int,accounts: null == accounts ? _self.accounts : accounts // ignore: cast_nullable_to_non_nullable
 as int,transfers: null == transfers ? _self.transfers : transfers // ignore: cast_nullable_to_non_nullable
 as int,recurringRules: null == recurringRules ? _self.recurringRules : recurringRules // ignore: cast_nullable_to_non_nullable
+as int,goals: null == goals ? _self.goals : goals // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
