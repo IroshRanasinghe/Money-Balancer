@@ -224,3 +224,11 @@ _Agent ID: a5d5a09e71ae4accd_
 _Agent ID: a7d96def9bbac6811_
 
 **Controller verification:** the agent's reply was empty ("placeholder"), so I verified directly. Commit fa68c00 touches the 8 expected files; `flutter analyze` → No issues found!; I rebuilt the DEMO_DATA web build and re-screenshotted it. The Budget FAB now sits above the nav, the premium AppBar is white on the gradient, account balance and edit icon are right-aligned, grouped tiles no longer repeat the date, category labels show in full ("Entertainment", "Personal Care", "Loan Payments"), and Insurance/Loan Payments icons are legible in dark mode. Screenshots saved under docs/MB-UI/screenshots/. MB-UI complete.
+
+## Session — 2026-10-09 — Bug: app freezes when switching to Transactions (controller fix, no agent)
+
+User report: "when going to transaction app will freez". Reproduced by tapping the bottom-nav tabs over CDP against a **debug** web build (`flutter run -d web-server`). The console showed `Duplicate GlobalKey detected in widget tree` (a GlobalObjectKey under PopScope) on every tab switch. Release builds and URL navigation hid it, which is why the screenshot review missed it.
+
+Root cause: Phase 0 wrapped the ShellRoute `child` (go_router's nested Navigator, which owns a GlobalKey) in an `AnimatedSwitcher` keyed by location. During the 250 ms cross-fade both the outgoing and incoming subtrees contain that Navigator, so its key appears twice and the tree breaks.
+
+Fix: `AppShell` renders `child` directly. The tab cross-fade moved into the routes as `fadeTabPage` (a CustomTransitionPage with a FadeTransition) in `lib/core/config/page_transitions.dart`, replacing the tabs' `NoTransitionPage`. Verified: `flutter analyze` clean, and six tab taps across all five tabs in the debug build gave no GlobalKey error, a responsive main thread, and a rendered Transactions page.

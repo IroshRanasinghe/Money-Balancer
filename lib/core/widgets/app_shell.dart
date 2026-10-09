@@ -14,17 +14,15 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
-    final animate = !MediaQuery.disableAnimationsOf(context);
+    // [child] is go_router's nested Navigator, which owns a GlobalKey: never
+    // wrap it in an AnimatedSwitcher (two copies during the cross-fade cause a
+    // "Duplicate GlobalKey" crash). Tab fades live in the route pages instead.
     return Scaffold(
       extendBody: true,
-      body: AnimatedSwitcher(
-        duration: animate ? const Duration(milliseconds: 250) : Duration.zero,
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeOutCubic,
-        child: KeyedSubtree(key: ValueKey(location), child: child),
+      body: child,
+      bottomNavigationBar: AppBottomNav(
+        location: GoRouterState.of(context).uri.path,
       ),
-      bottomNavigationBar: AppBottomNav(location: location),
     );
   }
 }

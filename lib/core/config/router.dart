@@ -25,27 +25,27 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: AppRoutes.dashboard,
           pageBuilder: (c, s) =>
-              NoTransitionPage(child: dashboardRouteBuilder(c, s)),
+              fadeTabPage(state: s, child: dashboardRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.transactions,
           pageBuilder: (c, s) =>
-              NoTransitionPage(child: transactionsRouteBuilder(c, s)),
+              fadeTabPage(state: s, child: transactionsRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.budget,
           pageBuilder: (c, s) =>
-              NoTransitionPage(child: budgetRouteBuilder(c, s)),
+              fadeTabPage(state: s, child: budgetRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.reports,
           pageBuilder: (c, s) =>
-              NoTransitionPage(child: reportsRouteBuilder(c, s)),
+              fadeTabPage(state: s, child: reportsRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.settings,
           pageBuilder: (c, s) =>
-              NoTransitionPage(child: settingsRouteBuilder(c, s)),
+              fadeTabPage(state: s, child: settingsRouteBuilder(c, s)),
         ),
       ],
     ),
