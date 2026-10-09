@@ -67,6 +67,10 @@ IconData categoryIcon(String category) {
       return Icons.credit_card;
     case 'Pawn':
       return Icons.diamond;
+    case 'Kitchen Items':
+      return Icons.kitchen;
+    case 'Toys':
+      return Icons.toys;
     case 'Gift':
       return Icons.card_giftcard;
     default:
@@ -102,6 +106,12 @@ const _categoryColors = <String, Color>{
   'PickMe Eats': Color(0xFFF43F5E),
   'Credit Card': Color(0xFF4F46E5),
   'Pawn': Color(0xFFCA8A04),
+  'Kitchen Items': Color(0xFF0F766E),
+  'Toys': Color(0xFFF59E0B),
+  'Dialog Internet': Color(0xFFE6007E),
+  'Dialog Phone Card': Color(0xFFE6007E),
+  'Mobitel Internet': Color(0xFF0056A2),
+  'Mobitel Phone Card': Color(0xFF0056A2),
   'Salary': Color(0xFF16A34A),
   'Freelance': Color(0xFF0D9488),
   'Business': Color(0xFF7C3AED),
@@ -109,12 +119,20 @@ const _categoryColors = <String, Color>{
   'Gift': Color(0xFFD946EF),
 };
 
-/// Brand logos shown in place of a Material icon for these categories.
-const _categoryLogos = <String, String>{
-  'Uber': 'assets/images/categories/uber.png',
-  'Uber Eats': 'assets/images/categories/uber_eats.png',
-  'PickMe': 'assets/images/categories/pickme.png',
-  'PickMe Eats': 'assets/images/categories/pickme_eats.png',
+/// Brand logos shown in place of a Material icon for these categories, with an
+/// optional corner badge to tell apart categories that share a logo.
+const _categoryLogos = <String, (String, IconData?)>{
+  'Uber': ('assets/images/categories/uber.png', null),
+  'Uber Eats': ('assets/images/categories/uber_eats.png', null),
+  'PickMe': ('assets/images/categories/pickme.png', null),
+  'PickMe Eats': ('assets/images/categories/pickme_eats.png', null),
+  'Dialog Internet': ('assets/images/categories/dialog.png', Icons.wifi),
+  'Dialog Phone Card': ('assets/images/categories/dialog.png', Icons.sim_card),
+  'Mobitel Internet': ('assets/images/categories/mobitel.png', Icons.wifi),
+  'Mobitel Phone Card': (
+    'assets/images/categories/mobitel.png',
+    Icons.sim_card,
+  ),
 };
 
 /// Stable per-category hue; unknown categories (and "Other") use the primary.
@@ -132,14 +150,42 @@ class CategoryIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final logo = _categoryLogos[category];
     if (logo != null) {
-      return ClipRRect(
+      final (asset, badge) = logo;
+      final image = ClipRRect(
         borderRadius: BorderRadius.circular(size < 40 ? 11 : 14),
         child: Image.asset(
-          logo,
+          asset,
           width: size,
           height: size,
           fit: BoxFit.cover,
           filterQuality: FilterQuality.medium,
+        ),
+      );
+      if (badge == null) return image;
+      final badgeSize = size * 0.42;
+      return SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            image,
+            Positioned(
+              right: -2,
+              bottom: -2,
+              child: Container(
+                width: badgeSize,
+                height: badgeSize,
+                decoration: BoxDecoration(
+                  color: categoryColor(category),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                alignment: Alignment.center,
+                child: Icon(badge, color: Colors.white, size: badgeSize * 0.6),
+              ),
+            ),
+          ],
         ),
       );
     }
