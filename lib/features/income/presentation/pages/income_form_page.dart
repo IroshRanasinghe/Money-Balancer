@@ -64,12 +64,11 @@ class IncomeFormPage extends StatelessWidget {
             );
           }
         },
-        builder: (context, state) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: BlocBuilder<AccountsBloc, AccountsState>(
+        builder: (context, state) => BlocBuilder<AccountsBloc, AccountsState>(
             buildWhen: (a, b) =>
                 a.status != b.status || !listEquals(a.items, b.items),
             builder: (context, accountsState) => TransactionForm(
+              type: TransactionType.income,
               categories: AppCategories.income,
               showPaymentMethod: false,
               initial: initial,
@@ -82,7 +81,6 @@ class IncomeFormPage extends StatelessWidget {
                   context.read<IncomeBloc>().add(IncomeSubmitted(data)),
             ),
           ),
-        ),
       ),
     );
   }

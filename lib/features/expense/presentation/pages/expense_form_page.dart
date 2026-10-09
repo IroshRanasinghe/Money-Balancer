@@ -65,9 +65,7 @@ class ExpenseFormPage extends StatelessWidget {
             );
           }
         },
-        builder: (context, state) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: BlocBuilder<AccountsBloc, AccountsState>(
+        builder: (context, state) => BlocBuilder<AccountsBloc, AccountsState>(
             buildWhen: (a, b) =>
                 a.status != b.status || !listEquals(a.items, b.items),
             builder: (context, accountsState) =>
@@ -75,6 +73,7 @@ class ExpenseFormPage extends StatelessWidget {
                   buildWhen: (a, b) =>
                       a.status != b.status || !listEquals(a.items, b.items),
                   builder: (context, cardsState) => TransactionForm(
+                    type: TransactionType.expense,
                     accountsLoading:
                         accountsState.status == AccountsStatus.initial ||
                         accountsState.status == AccountsStatus.loading,
@@ -101,7 +100,6 @@ class ExpenseFormPage extends StatelessWidget {
                   ),
                 ),
           ),
-        ),
       ),
     );
   }

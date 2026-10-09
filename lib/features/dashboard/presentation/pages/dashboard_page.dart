@@ -3,12 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/constants.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/formatters.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_tokens.dart';
+import '../../../../core/widgets/app_shell.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/transaction_tile.dart';
+import '../../../../shared/widgets/ui/app_card.dart';
+import '../../../../shared/widgets/ui/icon_badge.dart';
+import '../../../../shared/widgets/ui/section_header.dart';
+import '../../../../shared/widgets/ui/staggered_fade_in.dart';
 import '../../../goals/presentation/bloc/goals_bloc.dart';
-import '../../../goals/presentation/widgets/goal_card.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../domain/entities/dashboard_summary.dart';
@@ -17,7 +21,9 @@ import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
 import '../widgets/add_transaction_sheet.dart';
 import '../widgets/balance_card.dart';
-import '../widgets/summary_card.dart';
+import '../widgets/dashboard_header.dart';
+import '../widgets/goal_mini_card.dart';
+import '../widgets/quick_actions.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -26,17 +32,20 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<DashboardBloc>();
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-        onPressed: () async {
-          final route = await AddTransactionSheet.show(context);
-          if (route == null || !context.mounted) return;
-          final changed = await context.push<bool>(route);
-          if (changed == true && context.mounted) {
-            bloc.add(const DashboardLoadRequested());
-          }
-        },
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: kNavBarClearance - 24),
+        child: FloatingActionButton(
+          tooltip: 'Add',
+          onPressed: () async {
+            final route = await AddTransactionSheet.show(context);
+            if (route == null || !context.mounted) return;
+            final changed = await context.push<bool>(route);
+            if (changed == true && context.mounted) {
+              bloc.add(const DashboardLoadRequested());
+            }
+          },
+          child: const Icon(Icons.add_rounded),
+        ),
       ),
       body: SafeArea(
         child: BlocBuilder<DashboardBloc, DashboardState>(
@@ -80,14 +89,20 @@ class _Content extends StatelessWidget {
 
   final DashboardSummary summary;
 
+  Future<void> _push(BuildContext context, String route) async {
+    final bloc = context.read<DashboardBloc>();
+    await context.push<bool>(route);
+    if (context.mounted) bloc.add(const DashboardLoadRequested());
+  }
+
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<DashboardBloc>();
     final goalsBloc = context.read<GoalsBloc>();
-    final theme = Theme.of(context);
-    final currency =
-        context.select((SettingsBloc b) => b.state.settings.currency);
-    final now = DateTime.now();
+    final t = context.tokens;
+    final currency = context.select(
+      (SettingsBloc b) => b.state.settings.currency,
+    );
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -100,21 +115,19 @@ class _Content extends StatelessWidget {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.gutter,
+          AppSpacing.lg,
+          AppSpacing.gutter,
+          kNavBarClearance + 56,
+        ),
         children: [
-          Text(
-            'Money Balance',
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            formatMonthYear(now.month, now.year),
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 16),
+          DashboardHeader(onAvatarTap: () => context.go(AppRoutes.settings)),
+          const SizedBox(height: AppSpacing.xl),
           BalanceCard(
             balance: summary.totalBalance,
+            monthIncome: summary.monthIncome,
+            monthExpense: summary.monthExpense,
             currencyCode: currency,
             onTap: () async {
               await context.push(AppRoutes.accounts);
@@ -123,138 +136,155 @@ class _Content extends StatelessWidget {
               }
             },
           ),
-          const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: SummaryCard(
-                  label: 'Income this month',
-                  amount: summary.monthIncome,
-                  currencyCode: currency,
-                  icon: Icons.arrow_downward,
-                  color: AppColors.success,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: SummaryCard(
-                  label: 'Expenses this month',
-                  amount: summary.monthExpense,
-                  currencyCode: currency,
-                  icon: Icons.arrow_upward,
-                  color: AppColors.danger,
-                ),
-              ),
-            ],
+          const SizedBox(height: AppSpacing.xl),
+          QuickActions(
+            onExpense: () => _push(context, AppRoutes.addExpense),
+            onIncome: () => _push(context, AppRoutes.addIncome),
+            onTransfer: () => _push(context, AppRoutes.accounts),
+            onGoals: () => _openGoals(context),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           const _GoalsSection(),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Recent transactions',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              TextButton(
-                onPressed: () => context.go(AppRoutes.transactions),
-                child: const Text('See all'),
-              ),
-            ],
+          const SizedBox(height: AppSpacing.xxl),
+          SectionHeader(
+            title: 'Recent transactions',
+            actionLabel: 'See all',
+            onAction: () => context.go(AppRoutes.transactions),
           ),
+          const SizedBox(height: AppSpacing.sm),
           if (summary.recentTransactions.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: EmptyState(
                 icon: Icons.receipt_long,
-                message: 'No transactions yet.\nTap Add to record your first one.',
+                message:
+                    'No transactions yet.\nTap Add to record your first one.',
               ),
             )
           else
-            for (final t in summary.recentTransactions)
-              TransactionTile(
-                transaction: t,
-                currencyCode: currency,
-                onTap: () async {
-                  final changed = await context.push<bool>(
-                    t.type == TransactionType.expense
-                        ? AppRoutes.editExpense
-                        : AppRoutes.editIncome,
-                    extra: t,
-                  );
-                  if (changed == true && context.mounted) {
-                    bloc.add(const DashboardLoadRequested());
-                  }
-                },
+            AppCard(
+              padding: EdgeInsets.zero,
+              child: ClipRRect(
+                borderRadius: AppRadius.lgAll,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    children: [
+                      for (
+                        var i = 0;
+                        i < summary.recentTransactions.length;
+                        i++
+                      ) ...[
+                        if (i > 0)
+                          Divider(height: 1, indent: 72, color: t.border),
+                        StaggeredFadeIn(
+                          index: i,
+                          child: TransactionTile(
+                            transaction: summary.recentTransactions[i],
+                            currencyCode: currency,
+                            onTap: () {
+                              final tx = summary.recentTransactions[i];
+                              _edit(context, tx);
+                            },
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
+            ),
         ],
       ),
     );
   }
+
+  Future<void> _edit(BuildContext context, Transaction t) async {
+    final bloc = context.read<DashboardBloc>();
+    final changed = await context.push<bool>(
+      t.type == TransactionType.expense
+          ? AppRoutes.editExpense
+          : AppRoutes.editIncome,
+      extra: t,
+    );
+    if (changed == true && context.mounted) {
+      bloc.add(const DashboardLoadRequested());
+    }
+  }
+}
+
+Future<void> _openGoals(BuildContext context) async {
+  final bloc = context.read<GoalsBloc>();
+  await context.push(AppRoutes.goals);
+  if (context.mounted) bloc.add(const GoalsLoadRequested());
 }
 
 class _GoalsSection extends StatelessWidget {
   const _GoalsSection();
 
-  Future<void> _openGoals(BuildContext context) async {
-    final bloc = context.read<GoalsBloc>();
-    await context.push(AppRoutes.goals);
-    if (context.mounted) bloc.add(const GoalsLoadRequested());
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final currency =
-        context.select((SettingsBloc b) => b.state.settings.currency);
+    final t = context.tokens;
+    final currency = context.select(
+      (SettingsBloc b) => b.state.settings.currency,
+    );
     return BlocBuilder<GoalsBloc, GoalsState>(
       builder: (context, state) {
-        final incomplete =
-            state.goals.where((g) => !g.isCompleted).take(2).toList();
-        final empty =
-            incomplete.isEmpty && state.status == GoalsStatus.success;
+        final incomplete = state.goals
+            .where((g) => !g.isCompleted)
+            .take(2)
+            .toList();
+        final empty = incomplete.isEmpty && state.status == GoalsStatus.success;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Savings goals',
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => _openGoals(context),
-                  child: const Text('See all'),
-                ),
-              ],
+            SectionHeader(
+              title: 'Savings goals',
+              actionLabel: 'See all',
+              onAction: () => _openGoals(context),
             ),
+            const SizedBox(height: AppSpacing.sm),
             if (empty)
-              Card(
-                clipBehavior: Clip.antiAlias,
-                child: ListTile(
-                  leading: const Icon(Icons.flag_outlined),
-                  title: const Text('Start a savings goal'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _openGoals(context),
+              AppCard(
+                onTap: () => _openGoals(context),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                child: Row(
+                  children: [
+                    const IconBadge(
+                      icon: Icons.flag_outlined,
+                      color: Color(0xFF7C3AED),
+                      size: 40,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Start a savings goal',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                    Icon(Icons.chevron_right_rounded, color: t.textSecondary),
+                  ],
                 ),
               )
-            else
-              for (final goal in incomplete)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: GoalCard(
-                    goal: goal,
+            else if (incomplete.isNotEmpty)
+              SizedBox(
+                height: 120,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  itemCount: incomplete.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
+                  itemBuilder: (context, i) => GoalMiniCard(
+                    goal: incomplete[i],
                     currencyCode: currency,
                     onTap: () => _openGoals(context),
                   ),
                 ),
+              ),
           ],
         );
       },

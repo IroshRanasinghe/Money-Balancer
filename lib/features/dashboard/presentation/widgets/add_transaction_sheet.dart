@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/config/constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/widgets/ui/settings_group.dart';
+import '../../../../shared/widgets/ui/sheet_scaffold.dart';
 
 class AddTransactionSheet {
   const AddTransactionSheet._();
@@ -10,20 +12,21 @@ class AddTransactionSheet {
   static Future<String?> show(BuildContext context) =>
       showModalBottomSheet<String>(
         context: context,
-        builder: (ctx) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        isScrollControlled: true,
+        builder: (ctx) => SheetScaffold(
+          title: 'Add transaction',
+          child: SettingsGroup(
             children: [
-              ListTile(
-                leading: const Icon(Icons.remove_circle_outline,
-                    color: AppColors.danger),
-                title: const Text('Add expense'),
+              SettingsTile(
+                icon: Icons.arrow_upward_rounded,
+                iconColor: AppColors.danger,
+                title: 'Add expense',
                 onTap: () => Navigator.pop(ctx, AppRoutes.addExpense),
               ),
-              ListTile(
-                leading: const Icon(Icons.add_circle_outline,
-                    color: AppColors.success),
-                title: const Text('Add income'),
+              SettingsTile(
+                icon: Icons.arrow_downward_rounded,
+                iconColor: AppColors.success,
+                title: 'Add income',
                 onTap: () => Navigator.pop(ctx, AppRoutes.addIncome),
               ),
             ],
