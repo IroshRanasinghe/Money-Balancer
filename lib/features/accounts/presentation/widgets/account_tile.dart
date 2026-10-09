@@ -67,13 +67,18 @@ class AccountTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Flexible(
-              child: AmountText(
-                item.balance,
-                currency: currencyCode,
-                textAlign: TextAlign.end,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: item.balance < 0 ? AppColors.danger : null,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 140),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: AmountText(
+                  item.balance,
+                  currency: currencyCode,
+                  textAlign: TextAlign.end,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: item.balance < 0 ? AppColors.danger : null,
+                  ),
                 ),
               ),
             ),

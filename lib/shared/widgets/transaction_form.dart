@@ -278,10 +278,7 @@ class _TransactionFormState extends State<TransactionForm> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              symbol,
-              style: amountStyle?.copyWith(color: t.textSecondary),
-            ),
+            Text(symbol, style: amountStyle?.copyWith(color: t.textSecondary)),
             const SizedBox(width: AppSpacing.sm),
             Flexible(
               child: ConstrainedBox(
@@ -386,17 +383,20 @@ class _TransactionFormState extends State<TransactionForm> {
                         children: [
                           CategoryIcon(category: category, size: 40),
                           const SizedBox(height: 6),
-                          Text(
-                            category,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: _category == category
-                                  ? t.textPrimary
-                                  : t.textSecondary,
+                          for (final line in category.split(' '))
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                line,
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: _category == category
+                                      ? t.textPrimary
+                                      : t.textSecondary,
+                                ),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -417,11 +417,11 @@ class _TransactionFormState extends State<TransactionForm> {
       (SettingsBloc b) => b.state.settings.currency,
     );
     final symbol = NumberFormat.simpleCurrency(name: currency).currencySymbol;
-    final showCards = widget.showPaymentMethod &&
+    final showCards =
+        widget.showPaymentMethod &&
         _paymentMethod == 'Card' &&
         !widget.cardsLoading;
-    final showAccounts =
-        !widget.accountsLoading && widget.accounts.isNotEmpty;
+    final showAccounts = !widget.accountsLoading && widget.accounts.isNotEmpty;
     final addCard = showCards && widget.cards.isEmpty && _cardId == null;
 
     return Form(

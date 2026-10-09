@@ -46,10 +46,13 @@ class BudgetPage extends StatelessWidget {
       ],
       child: Scaffold(
         appBar: AppBar(title: const Text('Budgets')),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => BudgetFormSheet.show(context),
-          icon: const Icon(Icons.add),
-          label: const Text('Add budget'),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: kNavBarClearance - 24),
+          child: FloatingActionButton.extended(
+            onPressed: () => BudgetFormSheet.show(context),
+            icon: const Icon(Icons.add),
+            label: const Text('Add budget'),
+          ),
         ),
         body: Column(
           children: [

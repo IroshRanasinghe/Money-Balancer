@@ -257,6 +257,7 @@ class _Body extends StatelessWidget {
                           _TransactionsCard(
                             items: groups[i].items,
                             currency: currency,
+                            showDate: false,
                           ),
                         ],
                       ),
@@ -313,10 +314,15 @@ class _DayHeader extends StatelessWidget {
 }
 
 class _TransactionsCard extends StatelessWidget {
-  const _TransactionsCard({required this.items, required this.currency});
+  const _TransactionsCard({
+    required this.items,
+    required this.currency,
+    this.showDate = true,
+  });
 
   final List<Transaction> items;
   final String currency;
+  final bool showDate;
 
   Future<bool> _confirmDelete(BuildContext context, Transaction t) async {
     final bloc = context.read<TransactionBloc>();
@@ -374,21 +380,22 @@ class _TransactionsCard extends StatelessWidget {
                   child: ColoredBox(
                     color: t.surface,
                     child: TransactionTile(
-                    transaction: items[i],
-                    currencyCode: currency,
-                    onTap: () async {
-                      final tx = items[i];
-                      final changed = await context.push<bool>(
-                        tx.type == TransactionType.expense
-                            ? AppRoutes.editExpense
-                            : AppRoutes.editIncome,
-                        extra: tx,
-                      );
-                      if (changed == true && context.mounted) {
-                        bloc.add(const TransactionsLoadRequested());
-                      }
-                    },
-                  ),
+                      transaction: items[i],
+                      currencyCode: currency,
+                      showDate: showDate,
+                      onTap: () async {
+                        final tx = items[i];
+                        final changed = await context.push<bool>(
+                          tx.type == TransactionType.expense
+                              ? AppRoutes.editExpense
+                              : AppRoutes.editIncome,
+                          extra: tx,
+                        );
+                        if (changed == true && context.mounted) {
+                          bloc.add(const TransactionsLoadRequested());
+                        }
+                      },
+                    ),
                   ),
                 ),
               ],

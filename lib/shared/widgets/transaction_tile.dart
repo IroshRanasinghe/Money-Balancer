@@ -12,11 +12,15 @@ class TransactionTile extends StatelessWidget {
     required this.transaction,
     required this.currencyCode,
     this.onTap,
+    this.showDate = true,
   });
 
   final Transaction transaction;
   final String currencyCode;
   final VoidCallback? onTap;
+
+  /// Hide the date when a day header already shows it.
+  final bool showDate;
 
   @override
   Widget build(BuildContext context) {
@@ -89,12 +93,13 @@ class TransactionTile extends StatelessWidget {
                   type: t.type,
                   style: theme.textTheme.titleSmall,
                 ),
-                Text(
-                  formatDate(t.date),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: tokens.textSecondary,
+                if (showDate)
+                  Text(
+                    formatDate(t.date),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: tokens.textSecondary,
+                    ),
                   ),
-                ),
               ],
             ),
           ],

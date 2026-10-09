@@ -130,6 +130,7 @@ class AccountDetailPage extends StatelessWidget {
         key: ValueKey('tx-${tx.id}'),
         transaction: tx,
         currencyCode: currency,
+        showDate: false,
         onTap: () async {
           final changed = await context.push<bool>(
             tx.type == TransactionType.expense

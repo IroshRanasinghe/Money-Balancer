@@ -74,6 +74,11 @@ class _PremiumPageState extends State<PremiumPage> {
         appBar: AppBar(
           title: const Text('Premium'),
           foregroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.white),
+          actionsIconTheme: const IconThemeData(color: Colors.white),
+          titleTextStyle: Theme.of(
+            context,
+          ).appBarTheme.titleTextStyle?.copyWith(color: Colors.white),
           systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         body: BlocBuilder<PremiumBloc, PremiumState>(
