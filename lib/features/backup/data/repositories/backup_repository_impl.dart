@@ -31,10 +31,14 @@ class BackupRepositoryImpl implements BackupRepository {
     try {
       decoded = jsonDecode(json);
     } on FormatException {
-      return const Left(InvalidBackupFailure('This is not a valid backup file.'));
+      return const Left(
+        InvalidBackupFailure('This is not a valid backup file.'),
+      );
     }
     if (decoded is! Map) {
-      return const Left(InvalidBackupFailure('This is not a valid backup file.'));
+      return const Left(
+        InvalidBackupFailure('This is not a valid backup file.'),
+      );
     }
     try {
       return Right(await _local.replaceAll(Map<String, dynamic>.from(decoded)));
@@ -46,23 +50,47 @@ class BackupRepositoryImpl implements BackupRepository {
   }
 
   @override
-  Future<Either<Failure, void>> shareFile({
+  Future<Either<Failure, bool>> shareFile({
     required String fileName,
     required String content,
     required String mimeType,
   }) async {
     try {
-      await _files.shareFile(
-          fileName: fileName, content: content, mimeType: mimeType);
-      return const Right(null);
+      return Right(
+        await _files.shareFile(
+          fileName: fileName,
+          content: content,
+          mimeType: mimeType,
+        ),
+      );
     } on FileException catch (e) {
       return Left(FileFailure(e.message));
     }
   }
 
   @override
-  Future<Either<Failure, String?>> pickTextFile(
-      {required List<String> extensions}) async {
+  Future<Either<Failure, bool>> saveFile({
+    required String fileName,
+    required String content,
+    required String mimeType,
+  }) async {
+    try {
+      return Right(
+        await _files.saveFile(
+          fileName: fileName,
+          content: content,
+          mimeType: mimeType,
+        ),
+      );
+    } on FileException catch (e) {
+      return Left(FileFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String?>> pickTextFile({
+    required List<String> extensions,
+  }) async {
     try {
       return Right(await _files.pickTextFile(extensions: extensions));
     } on FileException catch (e) {

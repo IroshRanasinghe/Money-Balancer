@@ -322,6 +322,39 @@ class _ProChip extends StatelessWidget {
 class _DataCard extends StatelessWidget {
   const _DataCard();
 
+  /// Free users skip the picker; the export use case opens the paywall.
+  Future<void> _exportCsv(BuildContext context, bool isPremium) async {
+    final bloc = context.read<BackupBloc>();
+    final target = isPremium
+        ? await showModalBottomSheet<ExportTarget>(
+            context: context,
+            isScrollControlled: true,
+            builder: (ctx) => SheetScaffold(
+              title: 'Export transactions',
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.download_rounded),
+                    title: const Text('Save to device'),
+                    subtitle: const Text('Choose a folder, like Downloads'),
+                    contentPadding: EdgeInsets.zero,
+                    onTap: () => Navigator.pop(ctx, ExportTarget.device),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.ios_share_rounded),
+                    title: const Text('Share…'),
+                    subtitle: const Text('Send to Drive, email or another app'),
+                    contentPadding: EdgeInsets.zero,
+                    onTap: () => Navigator.pop(ctx, ExportTarget.share),
+                  ),
+                ],
+              ),
+            ),
+          )
+        : ExportTarget.share;
+    if (target != null) bloc.add(CsvExportRequested(target));
+  }
+
   Future<void> _confirmRestore(BuildContext context) async {
     final bloc = context.read<BackupBloc>();
     final confirmed = await showDialog<bool>(
@@ -378,9 +411,7 @@ class _DataCard extends StatelessWidget {
                   iconColor: AppColors.success,
                   title: 'Export transactions (CSV)',
                   trailing: isPremium ? null : const _ProChip(),
-                  onTap: working
-                      ? null
-                      : () => bloc.add(const CsvExportRequested()),
+                  onTap: working ? null : () => _exportCsv(context, isPremium),
                 ),
                 SettingsTile(
                   icon: Icons.backup_rounded,
