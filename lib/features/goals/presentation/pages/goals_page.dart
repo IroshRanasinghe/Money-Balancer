@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/ui/icon_badge.dart';
+import '../../../../shared/widgets/ui/sheet_scaffold.dart';
+import '../../../../shared/widgets/ui/staggered_fade_in.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../domain/entities/savings_goal.dart';
 import '../bloc/goals_bloc.dart';
@@ -17,29 +21,34 @@ class GoalsPage extends StatelessWidget {
     final bloc = context.read<GoalsBloc>();
     return showModalBottomSheet<void>(
       context: context,
-      builder: (sheetContext) => SafeArea(
+      isScrollControlled: true,
+      builder: (sheetContext) => SheetScaffold(
+        title: goal.name,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.add_circle_outline),
-              title: const Text('Add money'),
+            _ActionTile(
+              icon: Icons.add_circle_outline_rounded,
+              color: sheetContext.tokens.success,
+              label: 'Add money',
               onTap: () {
                 Navigator.pop(sheetContext);
                 GoalAmountSheet.show(context, goal: goal, withdraw: false);
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.remove_circle_outline),
-              title: const Text('Withdraw'),
+            _ActionTile(
+              icon: Icons.remove_circle_outline_rounded,
+              color: sheetContext.tokens.warning,
+              label: 'Withdraw',
               onTap: () {
                 Navigator.pop(sheetContext);
                 GoalAmountSheet.show(context, goal: goal, withdraw: true);
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.edit_outlined),
-              title: const Text('Edit'),
+            _ActionTile(
+              icon: Icons.edit_outlined,
+              color: Theme.of(sheetContext).colorScheme.primary,
+              label: 'Edit',
               onTap: () {
                 Navigator.pop(sheetContext);
                 // Edit against the latest stored goal.
@@ -117,16 +126,19 @@ class GoalsPage extends StatelessWidget {
               );
             }
             return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
               itemCount: state.goals.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
                 final goal = state.goals[i];
-                return GoalCard(
+                return StaggeredFadeIn(
                   key: ValueKey(goal.id),
-                  goal: goal,
-                  currencyCode: currency,
-                  onTap: () => _showActions(context, goal),
+                  index: i,
+                  child: GoalCard(
+                    goal: goal,
+                    currencyCode: currency,
+                    onTap: () => _showActions(context, goal),
+                  ),
                 );
               },
             );
@@ -135,4 +147,26 @@ class GoalsPage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: EdgeInsets.zero,
+    leading: IconBadge(icon: icon, color: color, size: 40),
+    title: Text(label, style: Theme.of(context).textTheme.titleSmall),
+    onTap: onTap,
+  );
 }

@@ -4,7 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../domain/entities/report_data.dart';
@@ -22,7 +23,9 @@ class IncomeExpenseBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxValue = trend.fold<double>(
-        0, (m, t) => math.max(m, math.max(t.income, t.expense)));
+      0,
+      (m, t) => math.max(m, math.max(t.income, t.expense)),
+    );
     if (maxValue <= 0) {
       return const EmptyState(
         icon: Icons.bar_chart,
@@ -31,7 +34,10 @@ class IncomeExpenseBarChart extends StatelessWidget {
     }
     final maxY = maxValue * 1.2;
     final theme = Theme.of(context);
-    final labelStyle = theme.textTheme.labelSmall;
+    final t = context.tokens;
+    final labelStyle = theme.textTheme.labelSmall?.copyWith(
+      color: t.textSecondary,
+    );
 
     return Column(
       children: [
@@ -42,9 +48,11 @@ class IncomeExpenseBarChart extends StatelessWidget {
               maxY: maxY,
               alignment: BarChartAlignment.spaceAround,
               borderData: FlBorderData(show: false),
-              gridData: const FlGridData(
+              gridData: FlGridData(
                 show: true,
                 drawVerticalLine: false,
+                getDrawingHorizontalLine: (_) =>
+                    FlLine(color: t.border, strokeWidth: 1, dashArray: [4, 4]),
               ),
               titlesData: FlTitlesData(
                 topTitles: const AxisTitles(),
@@ -86,15 +94,21 @@ class IncomeExpenseBarChart extends StatelessWidget {
               ),
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (_) => t.textPrimary,
+                  tooltipBorderRadius: BorderRadius.circular(12),
+                  tooltipPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   getTooltipItem: (group, groupIndex, rod, rodIndex) =>
                       BarTooltipItem(
-                    formatCurrency(rod.toY, currencyCode),
-                    const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
+                        formatCurrency(rod.toY, currencyCode),
+                        TextStyle(
+                          color: t.surface,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
                 ),
               ),
               barGroups: [
@@ -124,11 +138,11 @@ class IncomeExpenseBarChart extends StatelessWidget {
   }
 
   BarChartRodData _rod(double value, Color color) => BarChartRodData(
-        toY: value,
-        color: color,
-        width: 10,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-      );
+    toY: value,
+    color: color,
+    width: 10,
+    borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+  );
 }
 
 class _LegendItem extends StatelessWidget {
@@ -139,15 +153,15 @@ class _LegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 6),
-          Text(label),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 12,
+        height: 12,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 6),
+      Text(label, style: Theme.of(context).textTheme.labelMedium),
+    ],
+  );
 }

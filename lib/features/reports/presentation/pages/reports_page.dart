@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/widgets/app_shell.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/month_selector.dart';
+import '../../../../shared/widgets/ui/app_card.dart';
+import '../../../../shared/widgets/ui/section_header.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/reports_bloc.dart';
 import '../widgets/category_pie_chart.dart';
@@ -19,6 +22,7 @@ class ReportsPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Reports')),
       body: Column(
         children: [
+          const SizedBox(height: 4),
           BlocBuilder<ReportsBloc, ReportsState>(
             buildWhen: (a, b) => a.month != b.month || a.year != b.year,
             builder: (context, state) => MonthSelector(
@@ -27,6 +31,7 @@ class ReportsPage extends StatelessWidget {
               onShift: (d) => bloc.add(ReportsMonthShifted(d)),
             ),
           ),
+          const SizedBox(height: 12),
           const Expanded(child: _Body()),
         ],
       ),
@@ -40,8 +45,9 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<ReportsBloc>();
-    final currency =
-        context.select((SettingsBloc b) => b.state.settings.currency);
+    final currency = context.select(
+      (SettingsBloc b) => b.state.settings.currency,
+    );
     return BlocBuilder<ReportsBloc, ReportsState>(
       builder: (context, state) {
         final report = state.report;
@@ -58,7 +64,6 @@ class _Body extends StatelessWidget {
         if (report == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        final theme = Theme.of(context);
         return RefreshIndicator(
           onRefresh: () async {
             bloc.add(const ReportsLoadRequested());
@@ -69,31 +74,25 @@ class _Body extends StatelessWidget {
           },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, kNavBarClearance),
             children: [
               ReportSummaryRow(report: report, currencyCode: currency),
-              const SizedBox(height: 16),
-              Text('Spending by category', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 24),
+              const SectionHeader(title: 'Spending by category'),
               const SizedBox(height: 8),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: CategoryPieChart(
-                    data: report.expenseByCategory,
-                    currencyCode: currency,
-                  ),
+              AppCard(
+                child: CategoryPieChart(
+                  data: report.expenseByCategory,
+                  currencyCode: currency,
                 ),
               ),
-              const SizedBox(height: 16),
-              Text('Income vs expenses', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 24),
+              const SectionHeader(title: 'Income vs expenses'),
               const SizedBox(height: 8),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: IncomeExpenseBarChart(
-                    trend: report.trend,
-                    currencyCode: currency,
-                  ),
+              AppCard(
+                child: IncomeExpenseBarChart(
+                  trend: report.trend,
+                  currencyCode: currency,
                 ),
               ),
             ],

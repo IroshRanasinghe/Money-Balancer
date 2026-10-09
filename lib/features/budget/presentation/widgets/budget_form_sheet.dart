@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/config/constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../shared/widgets/ui/sheet_scaffold.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../domain/entities/budget_progress.dart';
 import '../bloc/budget_bloc.dart';
@@ -54,12 +55,14 @@ class _BudgetFormSheetState extends State<BudgetFormSheet> {
 
   void _save() {
     if (!_formKey.currentState!.validate()) return;
-    context.read<BudgetBloc>().add(BudgetSaveRequested(
-          id: widget.existing?.budget.id,
-          category: _category,
-          limitText: _limit.text,
-          isActive: _isActive,
-        ));
+    context.read<BudgetBloc>().add(
+      BudgetSaveRequested(
+        id: widget.existing?.budget.id,
+        category: _category,
+        limitText: _limit.text,
+        isActive: _isActive,
+      ),
+    );
     Navigator.pop(context);
   }
 
@@ -81,9 +84,9 @@ class _BudgetFormSheetState extends State<BudgetFormSheet> {
       ),
     );
     if (confirmed == true && mounted) {
-      context
-          .read<BudgetBloc>()
-          .add(BudgetDeleteRequested(widget.existing!.budget.id));
+      context.read<BudgetBloc>().add(
+        BudgetDeleteRequested(widget.existing!.budget.id),
+      );
       Navigator.pop(context);
     }
   }
@@ -91,67 +94,61 @@ class _BudgetFormSheetState extends State<BudgetFormSheet> {
   @override
   Widget build(BuildContext context) {
     final editing = widget.existing != null;
-    final currency =
-        context.select((SettingsBloc b) => b.state.settings.currency);
+    final currency = context.select(
+      (SettingsBloc b) => b.state.settings.currency,
+    );
     final symbol = NumberFormat.simpleCurrency(name: currency).currencySymbol;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        16 + MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                editing ? 'Edit budget' : 'Add budget',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: _category,
-                decoration: const InputDecoration(labelText: 'Category'),
-                items: [
-                  for (final c in AppCategories.expense)
-                    DropdownMenuItem(value: c, child: Text(c)),
-                ],
-                onChanged: (c) => setState(() => _category = c ?? _category),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _limit,
-                decoration: InputDecoration(
-                  labelText: 'Monthly limit',
-                  prefixText: '$symbol ',
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                validator: (v) => parseAmount(v ?? '') == null
-                    ? 'Enter a valid limit greater than 0 (e.g. 1234.50)'
-                    : null,
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Active'),
-                value: _isActive,
-                onChanged: (v) => setState(() => _isActive = v),
-              ),
-              const SizedBox(height: 8),
-              FilledButton(onPressed: _save, child: const Text('Save budget')),
-              if (editing)
-                TextButton(
-                  onPressed: _delete,
-                  style:
-                      TextButton.styleFrom(foregroundColor: AppColors.danger),
-                  child: const Text('Delete'),
-                ),
-            ],
+    return Form(
+      key: _formKey,
+      child: SheetScaffold(
+        title: editing ? 'Edit budget' : 'Add budget',
+        actions: [
+          Expanded(
+            child: FilledButton(
+              onPressed: _save,
+              child: const Text('Save budget'),
+            ),
           ),
+        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DropdownButtonFormField<String>(
+              initialValue: _category,
+              decoration: const InputDecoration(labelText: 'Category'),
+              items: [
+                for (final c in AppCategories.expense)
+                  DropdownMenuItem(value: c, child: Text(c)),
+              ],
+              onChanged: (c) => setState(() => _category = c ?? _category),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _limit,
+              decoration: InputDecoration(
+                labelText: 'Monthly limit',
+                prefixText: '$symbol ',
+              ),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              validator: (v) => parseAmount(v ?? '') == null
+                  ? 'Enter a valid limit greater than 0 (e.g. 1234.50)'
+                  : null,
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Active'),
+              value: _isActive,
+              onChanged: (v) => setState(() => _isActive = v),
+            ),
+            if (editing)
+              TextButton(
+                onPressed: _delete,
+                style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+                child: const Text('Delete'),
+              ),
+          ],
         ),
       ),
     );

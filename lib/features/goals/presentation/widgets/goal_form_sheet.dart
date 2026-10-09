@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../shared/widgets/ui/sheet_scaffold.dart';
 import '../../domain/entities/savings_goal.dart';
 import '../bloc/goals_bloc.dart';
 import 'goal_card.dart';
@@ -62,7 +63,9 @@ class _GoalFormSheetState extends State<GoalFormSheet> {
     final current = _date;
     final picked = await showDatePicker(
       context: context,
-      initialDate: current != null && !current.isBefore(today) ? current : today,
+      initialDate: current != null && !current.isBefore(today)
+          ? current
+          : today,
       firstDate: today,
       lastDate: DateTime(now.year + 50),
     );
@@ -118,118 +121,111 @@ class _GoalFormSheetState extends State<GoalFormSheet> {
       listener: (context, state) {
         if (_submitted) Navigator.pop(context);
       },
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          16,
-          16,
-          16 + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  editing ? 'Edit goal' : 'Add goal',
-                  style: theme.textTheme.titleLarge,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Tracks progress only — doesn't move money between accounts.",
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _name,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (v) =>
-                      (v ?? '').trim().isEmpty ? 'Enter a goal name' : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _target,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(labelText: 'Target amount'),
-                  validator: (v) => parseAmount(v ?? '') == null
-                      ? 'Enter a target greater than 0'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: _pickDate,
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: 'Target date (optional)',
-                      suffixIcon: date == null
-                          ? const Icon(Icons.calendar_today_outlined)
-                          : IconButton(
-                              tooltip: 'Clear date',
-                              icon: const Icon(Icons.clear),
-                              onPressed: () => setState(() => _date = null),
-                            ),
-                    ),
-                    child: Text(date == null ? 'No date' : formatDate(date)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text('Colour', style: theme.textTheme.titleSmall),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 12,
-                  children: [
-                    for (final value in goalSwatches)
-                      GestureDetector(
-                        onTap: () => setState(() => _color = value),
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Color(value),
-                          child: _color == value
-                              ? const Icon(
-                                  Icons.check,
-                                  size: 18,
-                                  color: Colors.white,
-                                )
-                              : null,
-                        ),
-                      ),
-                  ],
-                ),
-                BlocBuilder<GoalsBloc, GoalsState>(
-                  buildWhen: (a, b) => a.errorMessage != b.errorMessage,
-                  builder: (context, state) =>
-                      _submitted && state.errorMessage != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Text(
-                            state.errorMessage!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.error,
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                const SizedBox(height: 16),
-                FilledButton(onPressed: _save, child: const Text('Save goal')),
-                if (editing)
-                  TextButton(
-                    onPressed: _delete,
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.danger,
-                    ),
-                    child: const Text('Delete'),
-                  ),
-              ],
+      child: Form(
+        key: _formKey,
+        child: SheetScaffold(
+          title: editing ? 'Edit goal' : 'Add goal',
+          actions: [
+            Expanded(
+              child: FilledButton(
+                onPressed: _save,
+                child: const Text('Save goal'),
+              ),
             ),
+          ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "Tracks progress only — doesn't move money between accounts.",
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _name,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(labelText: 'Name'),
+                validator: (v) =>
+                    (v ?? '').trim().isEmpty ? 'Enter a goal name' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _target,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(labelText: 'Target amount'),
+                validator: (v) => parseAmount(v ?? '') == null
+                    ? 'Enter a target greater than 0'
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: _pickDate,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Target date (optional)',
+                    suffixIcon: date == null
+                        ? const Icon(Icons.calendar_today_outlined)
+                        : IconButton(
+                            tooltip: 'Clear date',
+                            icon: const Icon(Icons.clear),
+                            onPressed: () => setState(() => _date = null),
+                          ),
+                  ),
+                  child: Text(date == null ? 'No date' : formatDate(date)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Colour', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 12,
+                children: [
+                  for (final value in goalSwatches)
+                    GestureDetector(
+                      onTap: () => setState(() => _color = value),
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Color(value),
+                        child: _color == value
+                            ? const Icon(
+                                Icons.check,
+                                size: 18,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                    ),
+                ],
+              ),
+              BlocBuilder<GoalsBloc, GoalsState>(
+                buildWhen: (a, b) => a.errorMessage != b.errorMessage,
+                builder: (context, state) =>
+                    _submitted && state.errorMessage != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          state.errorMessage!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              if (editing)
+                TextButton(
+                  onPressed: _delete,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.danger,
+                  ),
+                  child: const Text('Delete'),
+                ),
+            ],
           ),
         ),
       ),
