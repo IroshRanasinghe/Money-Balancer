@@ -113,6 +113,8 @@ const _categoryColors = <String, Color>{
 const _categoryLogos = <String, String>{
   'Uber': 'assets/images/categories/uber.png',
   'Uber Eats': 'assets/images/categories/uber_eats.png',
+  'PickMe': 'assets/images/categories/pickme.png',
+  'PickMe Eats': 'assets/images/categories/pickme_eats.png',
 };
 
 /// Stable per-category hue; unknown categories (and "Other") use the primary.
