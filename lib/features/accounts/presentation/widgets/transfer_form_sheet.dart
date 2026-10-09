@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/widgets/ui/sheet_scaffold.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/account.dart';
 import '../../domain/entities/transfer.dart';
@@ -140,99 +141,90 @@ class _TransferFormSheetState extends State<TransferFormSheet> {
       listener: (context, state) {
         if (_submitted) Navigator.pop(context);
       },
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          16,
-          16,
-          16 + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  editing ? 'Edit transfer' : 'Transfer',
-                  style: theme.textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String?>(
-                  initialValue: _from,
-                  decoration: const InputDecoration(labelText: 'From'),
-                  items: _items(),
-                  onChanged: (v) => setState(() => _from = v),
-                  validator: (v) => v == null ? 'Choose both accounts' : null,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String?>(
-                  initialValue: _to,
-                  decoration: const InputDecoration(labelText: 'To'),
-                  items: _items(),
-                  onChanged: (v) => setState(() => _to = v),
-                  validator: (v) {
-                    if (v == null) return 'Choose both accounts';
-                    if (v == _from) return 'Choose two different accounts';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _amount,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(labelText: 'Amount'),
-                  validator: (v) => parseAmount(v ?? '') == null
-                      ? 'Enter an amount greater than 0'
-                      : null,
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.calendar_today),
-                  title: const Text('Date'),
-                  subtitle: Text(formatDate(_date)),
-                  onTap: _pickDate,
-                ),
-                TextFormField(
-                  controller: _notes,
-                  maxLength: 200,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes (optional)',
-                  ),
-                ),
-                BlocBuilder<AccountsBloc, AccountsState>(
-                  buildWhen: (a, b) => a.errorMessage != b.errorMessage,
-                  builder: (context, state) =>
-                      _submitted && state.errorMessage != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            state.errorMessage!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.error,
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                const SizedBox(height: 8),
-                FilledButton(
-                  onPressed: _save,
-                  child: const Text('Save transfer'),
-                ),
-                if (editing)
-                  TextButton(
-                    onPressed: _delete,
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.danger,
-                    ),
-                    child: const Text('Delete'),
-                  ),
-              ],
+      child: SheetScaffold(
+        title: editing ? 'Edit transfer' : 'Transfer',
+        actions: [
+          Expanded(
+            child: FilledButton(
+              onPressed: _save,
+              child: const Text('Save transfer'),
             ),
+          ),
+        ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DropdownButtonFormField<String?>(
+                initialValue: _from,
+                decoration: const InputDecoration(labelText: 'From'),
+                items: _items(),
+                onChanged: (v) => setState(() => _from = v),
+                validator: (v) => v == null ? 'Choose both accounts' : null,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String?>(
+                initialValue: _to,
+                decoration: const InputDecoration(labelText: 'To'),
+                items: _items(),
+                onChanged: (v) => setState(() => _to = v),
+                validator: (v) {
+                  if (v == null) return 'Choose both accounts';
+                  if (v == _from) return 'Choose two different accounts';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _amount,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(labelText: 'Amount'),
+                validator: (v) => parseAmount(v ?? '') == null
+                    ? 'Enter an amount greater than 0'
+                    : null,
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('Date'),
+                subtitle: Text(formatDate(_date)),
+                onTap: _pickDate,
+              ),
+              TextFormField(
+                controller: _notes,
+                maxLength: 200,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (optional)',
+                ),
+              ),
+              BlocBuilder<AccountsBloc, AccountsState>(
+                buildWhen: (a, b) => a.errorMessage != b.errorMessage,
+                builder: (context, state) =>
+                    _submitted && state.errorMessage != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          state.errorMessage!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              if (editing)
+                TextButton(
+                  onPressed: _delete,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.danger,
+                  ),
+                  child: const Text('Delete'),
+                ),
+            ],
           ),
         ),
       ),

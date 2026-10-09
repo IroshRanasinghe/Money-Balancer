@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/config/constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_tokens.dart';
+import '../../../../shared/widgets/ui/sheet_scaffold.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../accounts/domain/entities/account.dart';
 import '../../../accounts/presentation/bloc/accounts_bloc.dart';
@@ -89,7 +91,9 @@ class _RecurringFormSheetState extends State<RecurringFormSheet> {
       lastDate: DateTime(2100),
     );
     if (picked == null) return;
-    setState(() => _startDate = DateTime(picked.year, picked.month, picked.day));
+    setState(
+      () => _startDate = DateTime(picked.year, picked.month, picked.day),
+    );
   }
 
   Future<void> _pickEnd() async {
@@ -116,9 +120,7 @@ class _RecurringFormSheetState extends State<RecurringFormSheet> {
         frequency: _frequency,
         startDate: _startDate,
         endDate: _endDate,
-        paymentMethod: _type == TransactionType.expense
-            ? _paymentMethod
-            : null,
+        paymentMethod: _type == TransactionType.expense ? _paymentMethod : null,
         notes: notes.isEmpty ? null : notes,
         accountId: _accountId,
       ),
@@ -129,8 +131,10 @@ class _RecurringFormSheetState extends State<RecurringFormSheet> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete this recurring item? Transactions already '
-            'added are kept.'),
+        title: const Text(
+          'Delete this recurring item? Transactions already '
+          'added are kept.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -192,163 +196,160 @@ class _RecurringFormSheetState extends State<RecurringFormSheet> {
       listener: (context, state) {
         if (_submitted) Navigator.pop(context);
       },
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          16,
-          16,
-          16 + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  editing ? 'Edit recurring' : 'Add recurring',
-                  style: theme.textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                SegmentedButton<TransactionType>(
-                  segments: const [
-                    ButtonSegment(
-                      value: TransactionType.expense,
-                      label: Text('Expense'),
-                    ),
-                    ButtonSegment(
-                      value: TransactionType.income,
-                      label: Text('Income'),
-                    ),
-                  ],
-                  selected: {_type},
-                  onSelectionChanged: (s) => setState(() {
-                    _type = s.first;
-                    if (!_categories.contains(_category)) _category = null;
-                  }),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _amount,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+      child: SheetScaffold(
+        title: editing ? 'Edit recurring' : 'Add recurring',
+        actions: [
+          Expanded(
+            child: FilledButton(onPressed: _save, child: const Text('Save')),
+          ),
+        ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SegmentedButton<TransactionType>(
+                segments: const [
+                  ButtonSegment(
+                    value: TransactionType.expense,
+                    label: Text('Expense'),
                   ),
-                  decoration: const InputDecoration(labelText: 'Amount'),
-                  validator: (v) => parseAmount(v ?? '') == null
-                      ? 'Enter an amount greater than 0'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  key: ValueKey(_type),
-                  initialValue: _category,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  items: [
-                    for (final c in _categories)
-                      DropdownMenuItem(value: c, child: Text(c)),
-                  ],
-                  validator: (v) => v == null ? 'Choose a category' : null,
-                  onChanged: (v) => setState(() => _category = v),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<RecurrenceFrequency>(
-                  initialValue: _frequency,
-                  decoration: InputDecoration(
-                    labelText: 'Frequency',
-                    helperText: _scheduleLocked
-                        ? 'Already started — create a new item to change the '
-                              'schedule'
-                        : null,
-                    helperMaxLines: 2,
-                  ),
-                  items: [
-                    for (final f in RecurrenceFrequency.values)
-                      DropdownMenuItem(value: f, child: Text(f.label)),
-                  ],
-                  onChanged: _scheduleLocked
-                      ? null
-                      : (f) => setState(() => _frequency = f ?? _frequency),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  enabled: !_scheduleLocked,
-                  leading: const Icon(Icons.calendar_today),
-                  title: const Text('Start date'),
-                  subtitle: Text(formatDate(_startDate)),
-                  onTap: _scheduleLocked ? null : _pickStart,
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.event_busy),
-                  title: const Text('End date (optional)'),
-                  subtitle: Text(
-                    _endDate == null ? 'No end date' : formatDate(_endDate!),
-                  ),
-                  trailing: _endDate == null
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.clear),
-                          tooltip: 'Clear end date',
-                          onPressed: () => setState(() => _endDate = null),
-                        ),
-                  onTap: _pickEnd,
-                ),
-                _accountPicker(accountsLoaded),
-                if (_type == TransactionType.expense) ...[
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String?>(
-                    initialValue: _paymentMethod,
-                    decoration: const InputDecoration(
-                      labelText: 'Payment method (optional)',
-                    ),
-                    items: [
-                      const DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text('None'),
-                      ),
-                      for (final m in PaymentMethods.all)
-                        DropdownMenuItem<String?>(value: m, child: Text(m)),
-                    ],
-                    onChanged: (v) => setState(() => _paymentMethod = v),
+                  ButtonSegment(
+                    value: TransactionType.income,
+                    label: Text('Income'),
                   ),
                 ],
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _notes,
-                  maxLength: 200,
-                  maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes (optional)',
-                  ),
+                selected: {_type},
+                onSelectionChanged: (s) => setState(() {
+                  _type = s.first;
+                  if (!_categories.contains(_category)) _category = null;
+                }),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _amount,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-                BlocBuilder<RecurringBloc, RecurringState>(
-                  buildWhen: (a, b) => a.errorMessage != b.errorMessage,
-                  builder: (context, state) =>
-                      _submitted && state.errorMessage != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            state.errorMessage!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.error,
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                const SizedBox(height: 16),
-                FilledButton(onPressed: _save, child: const Text('Save')),
-                if (editing)
-                  TextButton(
-                    onPressed: _delete,
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.danger,
+                decoration: const InputDecoration(labelText: 'Amount'),
+                validator: (v) => parseAmount(v ?? '') == null
+                    ? 'Enter an amount greater than 0'
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                key: ValueKey(_type),
+                initialValue: _category,
+                decoration: const InputDecoration(labelText: 'Category'),
+                items: [
+                  for (final c in _categories)
+                    DropdownMenuItem(value: c, child: Text(c)),
+                ],
+                validator: (v) => v == null ? 'Choose a category' : null,
+                onChanged: (v) => setState(() => _category = v),
+              ),
+              const SizedBox(height: 12),
+              Text('Frequency', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 8),
+              SegmentedButton<RecurrenceFrequency>(
+                showSelectedIcon: false,
+                segments: [
+                  for (final f in RecurrenceFrequency.values)
+                    ButtonSegment(value: f, label: Text(f.label, maxLines: 1)),
+                ],
+                selected: {_frequency},
+                onSelectionChanged: _scheduleLocked
+                    ? null
+                    : (s) => setState(() => _frequency = s.first),
+              ),
+              if (_scheduleLocked)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    'Already started — create a new item to change the '
+                    'schedule',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: context.tokens.textSecondary,
                     ),
-                    child: const Text('Delete'),
                   ),
+                ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                enabled: !_scheduleLocked,
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('Start date'),
+                subtitle: Text(formatDate(_startDate)),
+                onTap: _scheduleLocked ? null : _pickStart,
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.event_busy),
+                title: const Text('End date (optional)'),
+                subtitle: Text(
+                  _endDate == null ? 'No end date' : formatDate(_endDate!),
+                ),
+                trailing: _endDate == null
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: 'Clear end date',
+                        onPressed: () => setState(() => _endDate = null),
+                      ),
+                onTap: _pickEnd,
+              ),
+              _accountPicker(accountsLoaded),
+              if (_type == TransactionType.expense) ...[
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String?>(
+                  initialValue: _paymentMethod,
+                  decoration: const InputDecoration(
+                    labelText: 'Payment method (optional)',
+                  ),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('None'),
+                    ),
+                    for (final m in PaymentMethods.all)
+                      DropdownMenuItem<String?>(value: m, child: Text(m)),
+                  ],
+                  onChanged: (v) => setState(() => _paymentMethod = v),
+                ),
               ],
-            ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _notes,
+                maxLength: 200,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (optional)',
+                ),
+              ),
+              BlocBuilder<RecurringBloc, RecurringState>(
+                buildWhen: (a, b) => a.errorMessage != b.errorMessage,
+                builder: (context, state) =>
+                    _submitted && state.errorMessage != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          state.errorMessage!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              if (editing)
+                TextButton(
+                  onPressed: _delete,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.danger,
+                  ),
+                  child: const Text('Delete'),
+                ),
+            ],
           ),
         ),
       ),

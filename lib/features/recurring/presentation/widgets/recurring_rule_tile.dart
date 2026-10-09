@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/formatters.dart';
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../shared/widgets/category_icon.dart';
-import '../../../transactions/domain/entities/transaction.dart';
+import '../../../../shared/widgets/ui/amount_text.dart';
+import '../../../../shared/widgets/ui/app_card.dart';
+import '../../../../shared/widgets/ui/status_pill.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/recurring_rule.dart';
 
 class RecurringRuleTile extends StatelessWidget {
@@ -22,8 +25,8 @@ class RecurringRuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isExpense = rule.type == TransactionType.expense;
-    final color = isExpense ? AppColors.danger : AppColors.success;
+    final theme = Theme.of(context);
+    final t = context.tokens;
     final String status;
     if (!rule.isActive) {
       status = 'Paused';
@@ -32,26 +35,61 @@ class RecurringRuleTile extends StatelessWidget {
     } else {
       status = 'Next ${formatDate(rule.nextDue)}';
     }
-    return ListTile(
+    return AppCard(
       onTap: onTap,
-      leading: CircleAvatar(
-        backgroundColor: color.withValues(alpha: 0.15),
-        child: Icon(categoryIcon(rule.category), color: color),
-      ),
-      title: Text(rule.category),
-      subtitle: Text('${rule.frequency.label} · $status'),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+      child: Row(
         children: [
-          Text(
-            '${isExpense ? '-' : '+'}${formatCurrency(rule.amount, currencyCode)}',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isExpense ? null : AppColors.success,
+          CategoryIcon(category: rule.category),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        rule.category,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    StatusPill(
+                      label: rule.frequency.label,
+                      color: AppColors.primary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  status,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: t.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
-          Switch(value: rule.isActive, onChanged: onToggle),
+          const SizedBox(width: 8),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              AmountText(
+                rule.amount,
+                currency: currencyCode,
+                signed: true,
+                type: rule.type,
+                style: theme.textTheme.titleSmall,
+              ),
+              Switch(value: rule.isActive, onChanged: onToggle),
+            ],
+          ),
         ],
       ),
     );

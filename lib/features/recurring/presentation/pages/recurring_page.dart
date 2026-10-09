@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
@@ -69,16 +70,25 @@ class RecurringPage extends StatelessWidget {
               );
             }
             return ListView(
-              padding: const EdgeInsets.only(bottom: 96),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                AppSpacing.sm,
+                AppSpacing.gutter,
+                96,
+              ),
               children: [
                 for (final rule in state.rules)
-                  RecurringRuleTile(
-                    key: ValueKey(rule.id),
-                    rule: rule,
-                    currencyCode: currency,
-                    onTap: () =>
-                        RecurringFormSheet.show(context, existing: rule),
-                    onToggle: (v) => bloc.add(RecurringActiveToggled(rule.id, v)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: RecurringRuleTile(
+                      key: ValueKey(rule.id),
+                      rule: rule,
+                      currencyCode: currency,
+                      onTap: () =>
+                          RecurringFormSheet.show(context, existing: rule),
+                      onToggle: (v) =>
+                          bloc.add(RecurringActiveToggled(rule.id, v)),
+                    ),
                   ),
               ],
             );

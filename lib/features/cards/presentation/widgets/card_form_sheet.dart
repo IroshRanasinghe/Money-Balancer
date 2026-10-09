@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/widgets/ui/sheet_scaffold.dart';
+import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../domain/card_number.dart';
 import '../../domain/entities/bank_card.dart';
 import '../bloc/cards_bloc.dart';
@@ -87,21 +89,25 @@ class _CardFormSheetState extends State<CardFormSheet> {
   void _save() {
     final valid = _formKey.currentState!.validate();
     final expiryOk = _expiryValid();
-    setState(() => _expiryError = expiryOk ? null : 'Enter a valid expiry date');
+    setState(
+      () => _expiryError = expiryOk ? null : 'Enter a valid expiry date',
+    );
     if (!valid || !expiryOk) return;
-    context.read<CardsBloc>().add(CardSaveRequested(
-          id: widget.existing?.id,
-          createdAt: widget.existing?.createdAt,
-          nickname: _nickname.text,
-          bankName: _bankName.text,
-          type: _type,
-          network: _network,
-          cardNumber: digitsOnly(_cardNumber.text),
-          existingLast4: widget.existing?.last4,
-          expiryMonth: _month,
-          expiryYear: _year,
-          colorValue: _color,
-        ));
+    context.read<CardsBloc>().add(
+      CardSaveRequested(
+        id: widget.existing?.id,
+        createdAt: widget.existing?.createdAt,
+        nickname: _nickname.text,
+        bankName: _bankName.text,
+        type: _type,
+        network: _network,
+        cardNumber: digitsOnly(_cardNumber.text),
+        existingLast4: widget.existing?.last4,
+        expiryMonth: _month,
+        expiryYear: _year,
+        colorValue: _color,
+      ),
+    );
     Navigator.pop(context);
   }
 
@@ -111,7 +117,8 @@ class _CardFormSheetState extends State<CardFormSheet> {
       builder: (ctx) => AlertDialog(
         title: const Text('Delete this card?'),
         content: Text(
-            'Expenses already linked keep showing ••••${widget.existing!.last4}.'),
+          'Expenses already linked keep showing ••••${widget.existing!.last4}.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -134,166 +141,191 @@ class _CardFormSheetState extends State<CardFormSheet> {
   Widget build(BuildContext context) {
     final editing = widget.existing != null;
     final theme = Theme.of(context);
+    final currency = context.select(
+      (SettingsBloc b) => b.state.settings.currency,
+    );
     final thisYear = DateTime.now().year;
     final years = <int>{
       for (var y = thisYear; y <= thisYear + 20; y++) y,
       _year,
-    }.toList()
-      ..sort();
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        16 + MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(editing ? 'Edit card' : 'Add card',
-                  style: theme.textTheme.titleLarge),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nickname,
-                textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(labelText: 'Nickname'),
-                validator: (v) => (v ?? '').trim().isEmpty
-                    ? 'Enter a card nickname'
+    }.toList()..sort();
+    return SheetScaffold(
+      title: editing ? 'Edit card' : 'Add card',
+      actions: [
+        Expanded(
+          child: FilledButton(onPressed: _save, child: const Text('Save card')),
+        ),
+      ],
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ListenableBuilder(
+              listenable: Listenable.merge([_nickname, _bankName, _cardNumber]),
+              builder: (context, _) {
+                final digits = digitsOnly(_cardNumber.text);
+                final last4 = digits.length >= 4
+                    ? digits.substring(digits.length - 4)
+                    : (widget.existing?.last4 ?? '0000');
+                return BankCardFace(
+                  card: BankCard(
+                    id: widget.existing?.id ?? 'preview',
+                    nickname: _nickname.text.trim(),
+                    bankName: _bankName.text.trim(),
+                    type: _type,
+                    network: _network,
+                    last4: last4,
+                    expiryMonth: _month,
+                    expiryYear: _year,
+                    colorValue: _color,
+                    createdAt: widget.existing?.createdAt ?? DateTime.now(),
+                  ),
+                  spent: 0,
+                  currencyCode: currency,
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: _nickname,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(labelText: 'Nickname'),
+              validator: (v) =>
+                  (v ?? '').trim().isEmpty ? 'Enter a card nickname' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _bankName,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Bank name (optional)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            SegmentedButton<CardType>(
+              segments: const [
+                ButtonSegment(value: CardType.debit, label: Text('Debit')),
+                ButtonSegment(value: CardType.credit, label: Text('Credit')),
+              ],
+              selected: {_type},
+              onSelectionChanged: (s) => setState(() => _type = s.first),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<CardNetwork>(
+              initialValue: _network,
+              decoration: const InputDecoration(labelText: 'Network'),
+              items: [
+                for (final n in CardNetwork.values)
+                  DropdownMenuItem(value: n, child: Text(cardNetworkLabel(n))),
+              ],
+              onChanged: (n) => setState(() {
+                _network = n ?? _network;
+                _networkChosenManually = true;
+              }),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _cardNumber,
+              keyboardType: TextInputType.number,
+              autofillHints: const [AutofillHints.creditCardNumber],
+              inputFormatters: [_CardNumberFormatter()],
+              decoration: InputDecoration(
+                labelText: 'Card number',
+                hintText: editing
+                    ? 'Leave blank to keep •••• ${widget.existing!.last4}'
                     : null,
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _bankName,
-                textCapitalization: TextCapitalization.words,
-                decoration:
-                    const InputDecoration(labelText: 'Bank name (optional)'),
-              ),
-              const SizedBox(height: 12),
-              SegmentedButton<CardType>(
-                segments: const [
-                  ButtonSegment(value: CardType.debit, label: Text('Debit')),
-                  ButtonSegment(value: CardType.credit, label: Text('Credit')),
-                ],
-                selected: {_type},
-                onSelectionChanged: (s) => setState(() => _type = s.first),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<CardNetwork>(
-                initialValue: _network,
-                decoration: const InputDecoration(labelText: 'Network'),
-                items: [
-                  for (final n in CardNetwork.values)
-                    DropdownMenuItem(value: n, child: Text(cardNetworkLabel(n))),
-                ],
-                onChanged: (n) => setState(() {
-                  _network = n ?? _network;
-                  _networkChosenManually = true;
-                }),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _cardNumber,
-                keyboardType: TextInputType.number,
-                autofillHints: const [AutofillHints.creditCardNumber],
-                inputFormatters: [_CardNumberFormatter()],
-                decoration: InputDecoration(
-                  labelText: 'Card number',
-                  hintText: editing
-                      ? 'Leave blank to keep •••• ${widget.existing!.last4}'
-                      : null,
-                ),
-                onChanged: (v) {
-                  if (_networkChosenManually) return;
-                  final detected = detectNetwork(digitsOnly(v));
-                  if (detected != CardNetwork.other && detected != _network) {
-                    setState(() => _network = detected);
-                  }
-                },
-                validator: (v) {
-                  final digits = digitsOnly(v ?? '');
-                  if (editing && digits.isEmpty) return null;
-                  return isValidCardNumber(digits)
-                      ? null
-                      : 'Enter a valid card number';
-                },
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _month,
-                      decoration:
-                          const InputDecoration(labelText: 'Expiry month'),
-                      items: [
-                        for (var m = 1; m <= 12; m++)
-                          DropdownMenuItem(
-                            value: m,
-                            child: Text(m.toString().padLeft(2, '0')),
-                          ),
-                      ],
-                      onChanged: (m) => setState(() => _month = m ?? _month),
+              onChanged: (v) {
+                if (_networkChosenManually) return;
+                final detected = detectNetwork(digitsOnly(v));
+                if (detected != CardNetwork.other && detected != _network) {
+                  setState(() => _network = detected);
+                }
+              },
+              validator: (v) {
+                final digits = digitsOnly(v ?? '');
+                if (editing && digits.isEmpty) return null;
+                return isValidCardNumber(digits)
+                    ? null
+                    : 'Enter a valid card number';
+              },
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    initialValue: _month,
+                    decoration: const InputDecoration(
+                      labelText: 'Expiry month',
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _year,
-                      decoration:
-                          const InputDecoration(labelText: 'Expiry year'),
-                      items: [
-                        for (final y in years)
-                          DropdownMenuItem(value: y, child: Text('$y')),
-                      ],
-                      onChanged: (y) => setState(() => _year = y ?? _year),
-                    ),
-                  ),
-                ],
-              ),
-              if (_expiryError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    _expiryError!,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.error),
+                    items: [
+                      for (var m = 1; m <= 12; m++)
+                        DropdownMenuItem(
+                          value: m,
+                          child: Text(m.toString().padLeft(2, '0')),
+                        ),
+                    ],
+                    onChanged: (m) => setState(() => _month = m ?? _month),
                   ),
                 ),
-              const SizedBox(height: 16),
-              Text('Colour', style: theme.textTheme.titleSmall),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 12,
-                children: [
-                  for (final value in _swatches)
-                    GestureDetector(
-                      onTap: () => setState(() => _color = value),
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Color(value),
-                        child: _color == value
-                            ? const Icon(Icons.check,
-                                size: 18, color: Colors.white)
-                            : null,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              FilledButton(onPressed: _save, child: const Text('Save card')),
-              if (editing)
-                TextButton(
-                  onPressed: _delete,
-                  style:
-                      TextButton.styleFrom(foregroundColor: AppColors.danger),
-                  child: const Text('Delete'),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    initialValue: _year,
+                    decoration: const InputDecoration(labelText: 'Expiry year'),
+                    items: [
+                      for (final y in years)
+                        DropdownMenuItem(value: y, child: Text('$y')),
+                    ],
+                    onChanged: (y) => setState(() => _year = y ?? _year),
+                  ),
                 ),
-            ],
-          ),
+              ],
+            ),
+            if (_expiryError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  _expiryError!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+            Text('Colour', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                for (final value in _swatches)
+                  GestureDetector(
+                    onTap: () => setState(() => _color = value),
+                    child: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: Color(value),
+                      child: _color == value
+                          ? const Icon(
+                              Icons.check,
+                              size: 18,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                  ),
+              ],
+            ),
+            if (editing)
+              TextButton(
+                onPressed: _delete,
+                style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+                child: const Text('Delete'),
+              ),
+          ],
         ),
       ),
     );
@@ -306,12 +338,15 @@ class _CardFormSheetState extends State<CardFormSheet> {
 class _CardNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final text = newValue.text;
     final end = newValue.selection.end.clamp(0, text.length);
     var digits = digitsOnly(text);
     var before = digitsOnly(text.substring(0, end)).length;
-    final deletedSeparator = text.length < oldValue.text.length &&
+    final deletedSeparator =
+        text.length < oldValue.text.length &&
         digits == digitsOnly(oldValue.text);
     if (deletedSeparator && before > 0) {
       digits = digits.replaceRange(before - 1, before, '');
@@ -323,7 +358,8 @@ class _CardNumberFormatter extends TextInputFormatter {
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(
-          offset: caretOffsetForDigitCount(formatted, before)),
+        offset: caretOffsetForDigitCount(formatted, before),
+      ),
     );
   }
 }

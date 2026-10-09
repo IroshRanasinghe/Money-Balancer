@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
@@ -17,8 +18,9 @@ class CardsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currency =
-        context.select((SettingsBloc b) => b.state.settings.currency);
+    final currency = context.select(
+      (SettingsBloc b) => b.state.settings.currency,
+    );
     final bloc = context.read<CardsBloc>();
 
     return MultiBlocListener(
@@ -34,14 +36,15 @@ class CardsPage extends StatelessWidget {
           listener: (context, state) => _showReveal(context, state),
         ),
         BlocListener<CardsBloc, CardsState>(
-      listenWhen: (a, b) =>
-          a.errorMessage != b.errorMessage &&
-          b.errorMessage != null &&
-          b.status != CardsStatus.failure,
-      listener: (context, state) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
-      },
+          listenWhen: (a, b) =>
+              a.errorMessage != b.errorMessage &&
+              b.errorMessage != null &&
+              b.status != CardsStatus.failure,
+          listener: (context, state) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          },
         ),
       ],
       child: Scaffold(
@@ -73,17 +76,21 @@ class CardsPage extends StatelessWidget {
               );
             }
             return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                AppSpacing.sm,
+                AppSpacing.gutter,
+                96,
+              ),
               itemCount: state.items.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.lg),
               itemBuilder: (context, i) {
                 final item = state.items[i];
                 return BankCardTile(
                   key: ValueKey(item.card.id),
                   item: item,
                   currencyCode: currency,
-                  onTap: () =>
-                      CardFormSheet.show(context, existing: item.card),
+                  onTap: () => CardFormSheet.show(context, existing: item.card),
                   onReveal: () =>
                       bloc.add(CardNumberRevealRequested(item.card.id)),
                 );
@@ -99,7 +106,8 @@ class CardsPage extends StatelessWidget {
     final bloc = context.read<CardsBloc>();
     final messenger = ScaffoldMessenger.of(context);
     final number = state.revealedNumber!;
-    final nickname = state.items
+    final nickname =
+        state.items
             .where((i) => i.card.id == state.revealedCardId)
             .map((i) => i.card.nickname)
             .firstOrNull ??
@@ -111,7 +119,10 @@ class CardsPage extends StatelessWidget {
         content: SelectableText(
           formatCardNumber(number),
           style: const TextStyle(
-              fontFamily: 'monospace', fontSize: 18, letterSpacing: 1),
+            fontFamily: 'monospace',
+            fontSize: 18,
+            letterSpacing: 1,
+          ),
         ),
         actions: [
           TextButton(
@@ -123,9 +134,13 @@ class CardsPage extends StatelessWidget {
                   await Clipboard.setData(const ClipboardData(text: ''));
                 }
               });
-              messenger.showSnackBar(const SnackBar(
+              messenger.showSnackBar(
+                const SnackBar(
                   content: Text(
-                      'Card number copied — clipboard clears in 60 s')));
+                    'Card number copied — clipboard clears in 60 s',
+                  ),
+                ),
+              );
             },
             child: const Text('Copy'),
           ),

@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/constants.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/formatters.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_tokens.dart';
 import '../../../../shared/premium_gate.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/ui/amount_text.dart';
+import '../../../../shared/widgets/ui/pressable_scale.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/accounts_bloc.dart';
 import '../widgets/account_form_sheet.dart';
@@ -43,27 +45,7 @@ class AccountsPage extends StatelessWidget {
         ),
       ],
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Accounts'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.swap_horiz),
-              tooltip: 'Transfer',
-              onPressed: () {
-                final accounts = [for (final i in bloc.state.items) i.account];
-                if (accounts.length < 2) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Add two accounts to make a transfer'),
-                    ),
-                  );
-                  return;
-                }
-                TransferFormSheet.show(context, accounts: accounts);
-              },
-            ),
-          ],
-        ),
+        appBar: AppBar(title: const Text('Accounts')),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => AccountFormSheet.show(context),
           icon: const Icon(Icons.add),
@@ -94,55 +76,157 @@ class AccountsPage extends StatelessWidget {
               0,
               (sum, i) => sum + i.balance,
             );
-            final theme = Theme.of(context);
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.gutter,
+                AppSpacing.sm,
+                AppSpacing.gutter,
+                96,
+              ),
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total in accounts',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                _TotalHero(
+                  total: total,
+                  currency: currency,
+                  onTransfer: () {
+                    final accounts = [
+                      for (final i in bloc.state.items) i.account,
+                    ];
+                    if (accounts.length < 2) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Add two accounts to make a transfer'),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          formatCurrency(total, currency),
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: total < 0 ? AppColors.danger : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                for (final item in state.items)
-                  AccountTile(
-                    key: ValueKey(item.account.id),
-                    item: item,
-                    currencyCode: currency,
-                    onTap: () async {
-                      await context.push(
-                        AppRoutes.accountDetail,
-                        extra: item.account.id,
                       );
-                      if (context.mounted) {
-                        bloc.add(const AccountsLoadRequested());
-                      }
-                    },
-                    onEdit: () =>
-                        AccountFormSheet.show(context, existing: item.account),
+                      return;
+                    }
+                    TransferFormSheet.show(context, accounts: accounts);
+                  },
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                for (final item in state.items)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: AccountTile(
+                      key: ValueKey(item.account.id),
+                      item: item,
+                      currencyCode: currency,
+                      onTap: () async {
+                        await context.push(
+                          AppRoutes.accountDetail,
+                          extra: item.account.id,
+                        );
+                        if (context.mounted) {
+                          bloc.add(const AccountsLoadRequested());
+                        }
+                      },
+                      onEdit: () => AccountFormSheet.show(
+                        context,
+                        existing: item.account,
+                      ),
+                    ),
                   ),
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _TotalHero extends StatelessWidget {
+  const _TotalHero({
+    required this.total,
+    required this.currency,
+    required this.onTransfer,
+  });
+
+  final double total;
+  final String currency;
+  final VoidCallback onTransfer;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: context.tokens.brandGradient,
+        borderRadius: AppRadius.xlAll,
+        boxShadow: context.tokens.heroShadow,
+      ),
+      child: ClipRRect(
+        borderRadius: AppRadius.xlAll,
+        child: Stack(
+          children: [
+            Positioned(
+              right: -40,
+              top: -40,
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.10),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Total in accounts',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  AmountText(
+                    total,
+                    currency: currency,
+                    style: theme.textTheme.displaySmall?.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  PressableScale(
+                    onTap: onTransfer,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.35),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.swap_horiz_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Transfer',
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
