@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/config/constants.dart';
-import '../../../../core/config/theme.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class AddTransactionSheet {
   const AddTransactionSheet._();

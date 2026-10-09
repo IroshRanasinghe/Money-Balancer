@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/config/constants.dart';
-import '../../../../core/config/theme.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../domain/entities/budget_progress.dart';

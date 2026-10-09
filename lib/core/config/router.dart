@@ -14,6 +14,7 @@ import '../../features/settings/settings_routes.dart';
 import '../../features/transactions/transactions_routes.dart';
 import '../widgets/app_shell.dart';
 import 'constants.dart';
+import 'page_transitions.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.dashboard,
@@ -23,36 +24,70 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(
           path: AppRoutes.dashboard,
-          pageBuilder: (c, s) => NoTransitionPage(child: dashboardRouteBuilder(c, s)),
+          pageBuilder: (c, s) =>
+              NoTransitionPage(child: dashboardRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.transactions,
-          pageBuilder: (c, s) => NoTransitionPage(child: transactionsRouteBuilder(c, s)),
+          pageBuilder: (c, s) =>
+              NoTransitionPage(child: transactionsRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.budget,
-          pageBuilder: (c, s) => NoTransitionPage(child: budgetRouteBuilder(c, s)),
+          pageBuilder: (c, s) =>
+              NoTransitionPage(child: budgetRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.reports,
-          pageBuilder: (c, s) => NoTransitionPage(child: reportsRouteBuilder(c, s)),
+          pageBuilder: (c, s) =>
+              NoTransitionPage(child: reportsRouteBuilder(c, s)),
         ),
         GoRoute(
           path: AppRoutes.settings,
-          pageBuilder: (c, s) => NoTransitionPage(child: settingsRouteBuilder(c, s)),
+          pageBuilder: (c, s) =>
+              NoTransitionPage(child: settingsRouteBuilder(c, s)),
         ),
       ],
     ),
-    GoRoute(path: AppRoutes.cards, builder: cardsRouteBuilder),
-    GoRoute(path: AppRoutes.accounts, builder: accountsRouteBuilder),
     GoRoute(
-        path: AppRoutes.accountDetail, builder: accountDetailRouteBuilder),
-    GoRoute(path: AppRoutes.recurring, builder: recurringRouteBuilder),
-    GoRoute(path: AppRoutes.goals, builder: goalsRouteBuilder),
-    GoRoute(path: AppRoutes.premium, builder: premiumRouteBuilder),
-    GoRoute(path: AppRoutes.addExpense, builder: addExpenseRouteBuilder),
-    GoRoute(path: AppRoutes.editExpense, builder: editExpenseRouteBuilder),
-    GoRoute(path: AppRoutes.addIncome, builder: addIncomeRouteBuilder),
-    GoRoute(path: AppRoutes.editIncome, builder: editIncomeRouteBuilder),
+      path: AppRoutes.cards,
+      pageBuilder: fadeSlideBuilder(cardsRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.accounts,
+      pageBuilder: fadeSlideBuilder(accountsRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.accountDetail,
+      pageBuilder: fadeSlideBuilder(accountDetailRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.recurring,
+      pageBuilder: fadeSlideBuilder(recurringRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.goals,
+      pageBuilder: fadeSlideBuilder(goalsRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.premium,
+      pageBuilder: fadeSlideBuilder(premiumRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.addExpense,
+      pageBuilder: fadeSlideBuilder(addExpenseRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.editExpense,
+      pageBuilder: fadeSlideBuilder(editExpenseRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.addIncome,
+      pageBuilder: fadeSlideBuilder(addIncomeRouteBuilder),
+    ),
+    GoRoute(
+      path: AppRoutes.editIncome,
+      pageBuilder: fadeSlideBuilder(editIncomeRouteBuilder),
+    ),
   ],
 );

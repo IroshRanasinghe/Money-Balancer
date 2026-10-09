@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/constants.dart';
-import '../../../../core/config/theme.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/premium/premium_feature.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/premium_gate.dart';
