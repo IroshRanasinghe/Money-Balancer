@@ -55,6 +55,18 @@ IconData categoryIcon(String category) {
       return Icons.store;
     case 'Investment':
       return Icons.trending_up;
+    case 'Uber':
+      return Icons.local_taxi;
+    case 'PickMe':
+      return Icons.hail;
+    case 'Uber Eats':
+      return Icons.delivery_dining;
+    case 'PickMe Eats':
+      return Icons.fastfood;
+    case 'Credit Card':
+      return Icons.credit_card;
+    case 'Pawn':
+      return Icons.diamond;
     case 'Gift':
       return Icons.card_giftcard;
     default:
@@ -84,6 +96,12 @@ const _categoryColors = <String, Color>{
   'Pets': Color(0xFFB45309),
   'Donations': Color(0xFFDB2777),
   'Loan Payments': Color(0xFFC2410C),
+  'Uber': Color(0xFF334155),
+  'PickMe': Color(0xFFFACC15),
+  'Uber Eats': Color(0xFF10B981),
+  'PickMe Eats': Color(0xFFF43F5E),
+  'Credit Card': Color(0xFF4F46E5),
+  'Pawn': Color(0xFFCA8A04),
   'Salary': Color(0xFF16A34A),
   'Freelance': Color(0xFF0D9488),
   'Business': Color(0xFF7C3AED),

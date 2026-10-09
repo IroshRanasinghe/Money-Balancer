@@ -50,8 +50,12 @@ class AppCategories {
 
   static const expense = [
     'Food',
+    'Uber Eats',
+    'PickMe Eats',
     'Groceries',
     'Transport',
+    'Uber',
+    'PickMe',
     'Fuel',
     'Shopping',
     'Rent',
@@ -70,6 +74,8 @@ class AppCategories {
     'Pets',
     'Donations',
     'Loan Payments',
+    'Credit Card',
+    'Pawn',
     'Other',
   ];
 
