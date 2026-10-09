@@ -6,6 +6,7 @@ import '../../domain/entities/premium_package.dart';
 import '../../domain/entities/premium_status.dart';
 import '../../domain/repositories/premium_repository.dart';
 import '../datasources/premium_datasource.dart';
+import '../premium_config.dart';
 
 class PremiumRepositoryImpl implements PremiumRepository {
   const PremiumRepositoryImpl(this._source);
@@ -13,8 +14,15 @@ class PremiumRepositoryImpl implements PremiumRepository {
   final PremiumDataSource _source;
 
   @override
-  Future<Either<Failure, PremiumStatus>> getStatus() =>
-      _run(_source.getStatus);
+  Future<Either<Failure, PremiumStatus>> getStatus() async {
+    final result = await _run(() async => _grant(await _source.getStatus()));
+    // Without this, an offline store read would put everyone back on Free.
+    if (PremiumConfig.forEveryone && result.isLeft()) {
+      return Right(PremiumStatus(
+          isPremium: true, storeAvailable: _source.storeAvailable));
+    }
+    return result;
+  }
 
   @override
   Future<Either<Failure, List<PremiumPackage>>> getPackages() =>
@@ -22,20 +30,24 @@ class PremiumRepositoryImpl implements PremiumRepository {
 
   @override
   Future<Either<Failure, PremiumStatus>> purchase(String packageId) =>
-      _run(() => _source.purchase(packageId));
+      _run(() async => _grant(await _source.purchase(packageId)));
 
   @override
   Future<Either<Failure, PremiumStatus>> restorePurchases() =>
-      _run(_source.restorePurchases);
+      _run(() async => _grant(await _source.restorePurchases()));
 
   @override
-  Stream<PremiumStatus> watchStatus() => _source.watchStatus();
+  Stream<PremiumStatus> watchStatus() => _source.watchStatus().map(_grant);
 
   @override
   bool get storeAvailable => _source.storeAvailable;
 
   @override
   void setDebugPremium(bool value) => _source.setDebugPremium(value);
+
+  PremiumStatus _grant(PremiumStatus status) => PremiumConfig.forEveryone
+      ? status.copyWith(isPremium: true)
+      : status;
 
   Future<Either<Failure, T>> _run<T>(Future<T> Function() body) async {
     try {
