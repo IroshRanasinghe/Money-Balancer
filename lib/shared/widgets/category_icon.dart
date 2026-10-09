@@ -109,6 +109,12 @@ const _categoryColors = <String, Color>{
   'Gift': Color(0xFFD946EF),
 };
 
+/// Brand logos shown in place of a Material icon for these categories.
+const _categoryLogos = <String, String>{
+  'Uber': 'assets/images/categories/uber.png',
+  'Uber Eats': 'assets/images/categories/uber_eats.png',
+};
+
 /// Stable per-category hue; unknown categories (and "Other") use the primary.
 Color categoryColor(String category) =>
     _categoryColors[category] ?? AppColors.primary;
@@ -121,9 +127,24 @@ class CategoryIcon extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => IconBadge(
-    icon: categoryIcon(category),
-    color: categoryColor(category),
-    size: size,
-  );
+  Widget build(BuildContext context) {
+    final logo = _categoryLogos[category];
+    if (logo != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(size < 40 ? 11 : 14),
+        child: Image.asset(
+          logo,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.medium,
+        ),
+      );
+    }
+    return IconBadge(
+      icon: categoryIcon(category),
+      color: categoryColor(category),
+      size: size,
+    );
+  }
 }
